@@ -5,17 +5,20 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mff.java.MainPageController">
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="mff.java.MainPageController" stylesheets="styles.css">
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
     <Text>Task manager</Text>
-    <ListView fx:id="taskList" />
-    <TextField fx:id="newTaskName"/>
-    <Button onAction="#addTask">Add</Button>
-    <Button onAction="#removeTask">Delete</Button>
 
-    <TextField fx:id="updatedTaskName"/>
-    <Button onAction="#updateTask">Update</Button>
+    <ListView fx:id="taskList" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <TextField fx:id="newTaskName" GridPane.rowIndex="1"/>
+    <Button onAction="#addTask" GridPane.rowIndex="1">Add</Button>
+    <Button onAction="#removeTask" GridPane.rowIndex="1">Delete</Button>
+
+    <TextField fx:id="updatedTaskName" GridPane.rowIndex="1"/>
+    <Button onAction="#updateTask" GridPane.rowIndex="1">Update</Button>
+
 </VBox>
