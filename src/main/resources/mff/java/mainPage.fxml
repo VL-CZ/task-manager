@@ -14,11 +14,11 @@
     <Text>Task manager</Text>
 
     <ListView fx:id="taskList" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-    <TextField fx:id="newTaskName" GridPane.rowIndex="1"/>
+    <TextField fx:id="newTaskTitle" GridPane.rowIndex="1"/>
     <Button onAction="#addTask" GridPane.rowIndex="1">Add</Button>
     <Button onAction="#removeTask" GridPane.rowIndex="1">Delete</Button>
 
-    <TextField fx:id="updatedTaskName" GridPane.rowIndex="1"/>
+    <TextField fx:id="updatedTaskTitle" GridPane.rowIndex="1"/>
     <Button onAction="#updateTask" GridPane.rowIndex="1">Update</Button>
 
 </VBox>

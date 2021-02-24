@@ -1,5 +1,7 @@
 package mff.java.models;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class Task {
@@ -56,5 +58,19 @@ public class Task {
     @Override
     public String toString() {
         return title;
+    }
+
+    /**
+     * create new task from ResultSet
+     * @param rs given ResultSet
+     * @return created task
+     * @throws SQLException
+     */
+    public static Task fromResultSet(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        String title = rs.getString("title");
+        String description = rs.getString("description");
+
+        return new Task(id, title, description, null);
     }
 }

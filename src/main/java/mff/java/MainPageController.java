@@ -38,22 +38,26 @@ public class MainPageController implements Initializable {
      * name of the task to add
      */
     @FXML
-    private TextField newTaskName;
+    private TextField newTaskTitle;
 
     /**
      * new name of the task to update
      */
     @FXML
-    private TextField updatedTaskName;
+    private TextField updatedTaskTitle;
 
     /**
      * add new task to the list
      */
     @FXML
     private void addTask() {
-//        String taskToAdd = newTaskName.getText();
-//        tasks.add(taskToAdd);
-//        newTaskName.clear();
+        String newTaskTitle = this.newTaskTitle.getText();
+        var task = new Task(0, newTaskTitle, newTaskTitle, null);
+        taskRepository.add(task);
+        this.newTaskTitle.clear();
+
+        tasks.clear();
+        tasks.addAll(taskRepository.getAll());
     }
 
     /**
@@ -71,10 +75,14 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void updateTask() {
-//        var taskToUpdate = taskList.getSelectionModel().getSelectedItem();
-//        var index = tasks.indexOf(taskToUpdate);
-//        tasks.set(index, updatedTaskName.getText());
-//        updatedTaskName.clear();
+        var taskToUpdate = taskList.getSelectionModel().getSelectedItem();
+        var newTitle = updatedTaskTitle.getText();
+
+        taskToUpdate.setTitle(newTitle);
+        taskRepository.update(taskToUpdate);
+
+        updatedTaskTitle.clear();
+        reloadTasks();
     }
 
     /**
@@ -88,7 +96,8 @@ public class MainPageController implements Initializable {
         try {
             Connection dbConnection = DbConnection.getConnection();
             taskRepository = new TaskRepository(dbConnection);
-            tasks.addAll(taskRepository.getAll());
+
+            reloadTasks();
         }
         catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -97,5 +106,12 @@ public class MainPageController implements Initializable {
 
     }
 
-
+    /**
+     * reload tasks from the DB (replace current collection by the data from database)
+     */
+    private void reloadTasks()
+    {
+        tasks.clear();
+        tasks.addAll(taskRepository.getAll());
+    }
 }
