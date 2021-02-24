@@ -8,13 +8,21 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import mff.java.db.DbConnection;
 import mff.java.models.Task;
+import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
 
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class MainPageController implements Initializable {
+
+    /**
+     * Task repository
+     */
+    private ITaskRepository taskRepository;
+
     /**
      * list of tasks
      */
@@ -53,8 +61,9 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void removeTask() {
-//        var taskToRemove = taskList.getSelectionModel().getSelectedItem();
-//        tasks.remove(taskToRemove);
+        var taskToRemove = taskList.getSelectionModel().getSelectedItem();
+        taskRepository.delete(taskToRemove);
+        tasks.remove(taskToRemove);
     }
 
     /**
@@ -76,14 +85,17 @@ public class MainPageController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try (var connection = DbConnection.getConnection()) {
-            var taskRepository = new TaskRepository(connection);
+        try {
+            Connection dbConnection = DbConnection.getConnection();
+            taskRepository = new TaskRepository(dbConnection);
             tasks.addAll(taskRepository.getAll());
         }
-        catch (SQLException e) {
-            e.printStackTrace();
+        catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
         taskList.setItems(tasks);
 
     }
+
+
 }

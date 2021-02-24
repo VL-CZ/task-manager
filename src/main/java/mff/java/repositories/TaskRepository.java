@@ -2,10 +2,7 @@ package mff.java.repositories;
 
 import mff.java.models.Task;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -47,8 +44,16 @@ public class TaskRepository implements ITaskRepository {
     }
 
     @Override
-    public void deleteById(int id) {
-
+    public void delete(Task task) {
+        PreparedStatement statement = null;
+        try {
+            statement = dbConnection.prepareStatement("delete from tasks where id=(?)");
+            statement.setInt(1, task.getId());
+            statement.execute();
+        }
+        catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     @Override

@@ -12,10 +12,10 @@ public interface ITaskRepository {
     List<Task> getAll();
 
     /**
-     * delete task by its id
-     * @param id
+     * delete the given task
+     * @param task
      */
-    void deleteById(int id);
+    void delete(Task task);
 
     /**
      * update properties of the given task
