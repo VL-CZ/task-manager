@@ -11,7 +11,7 @@ public class TaskTest {
 
     @Test
     public void testStatus() {
-        Task task = new Task("Title", "Description", LocalDateTime.now());
+        Task task = new Task(1, "Title", "Description", LocalDateTime.now());
         Assertions.assertEquals(TaskStatus.New, task.getStatus());
     }
 }

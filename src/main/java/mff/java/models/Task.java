@@ -3,13 +3,14 @@ package mff.java.models;
 import java.time.LocalDateTime;
 
 public class Task {
-    private int id;
+    private final int id;
     private String title;
     private String description;
     private TaskStatus status;
     private LocalDateTime deadline;
 
-    public Task(String title, String description, LocalDateTime deadline) {
+    public Task(int id, String title, String description, LocalDateTime deadline) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.status = TaskStatus.New;
@@ -46,5 +47,10 @@ public class Task {
 
     public void setDeadline(LocalDateTime deadline) {
         this.deadline = deadline;
+    }
+
+    @Override
+    public String toString() {
+        return title;
     }
 }
