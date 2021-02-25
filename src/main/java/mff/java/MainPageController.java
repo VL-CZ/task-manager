@@ -92,6 +92,7 @@ public class MainPageController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         var dbManager = new DbManager();
+        dbManager.initialize();
         taskRepository = new TaskRepository(dbManager);
 
         reloadTasks();
