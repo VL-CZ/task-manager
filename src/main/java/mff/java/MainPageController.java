@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import mff.java.db.DbManager;
@@ -63,7 +64,7 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void removeTask() {
-        var taskToRemove = taskList.getSelectionModel().getSelectedItem();
+        var taskToRemove = getSelectedFromTaskList();
         taskRepository.delete(taskToRemove);
         tasks.remove(taskToRemove);
     }
@@ -73,7 +74,7 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void updateTask() {
-        var taskToUpdate = taskList.getSelectionModel().getSelectedItem();
+        var taskToUpdate = getSelectedFromTaskList();
         var newTitle = updatedTaskTitle.getText();
 
         taskToUpdate.setTitle(newTitle);
@@ -81,6 +82,14 @@ public class MainPageController implements Initializable {
 
         updatedTaskTitle.clear();
         reloadTasks();
+    }
+
+    @FXML
+    private void showTaskDetails() {
+        var task = getSelectedFromTaskList();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Delete ");
+        alert.showAndWait();
+
     }
 
     /**
@@ -106,5 +115,13 @@ public class MainPageController implements Initializable {
     private void reloadTasks() {
         tasks.clear();
         tasks.addAll(taskRepository.getAll());
+    }
+
+    /**
+     * get selected task from {@link #taskList}
+     * @return
+     */
+    private Task getSelectedFromTaskList(){
+        return taskList.getSelectionModel().getSelectedItem();
     }
 }

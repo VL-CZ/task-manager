@@ -1,0 +1,11 @@
+.root{
+    -fx-font-size: 15px;
+}
+
+.button{
+    -fx-padding: 15px;
+}
+
+.headline{
+    -fx-font-size: 30px;
+}
