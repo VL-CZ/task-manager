@@ -6,14 +6,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import mff.java.db.DbConnection;
+import mff.java.db.DbManager;
 import mff.java.models.Task;
 import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
 
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class MainPageController implements Initializable {
@@ -93,15 +91,10 @@ public class MainPageController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try {
-            Connection dbConnection = DbConnection.getConnection();
-            taskRepository = new TaskRepository(dbConnection);
+        var dbManager = new DbManager();
+        taskRepository = new TaskRepository(dbManager);
 
-            reloadTasks();
-        }
-        catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        reloadTasks();
         taskList.setItems(tasks);
 
     }
@@ -109,8 +102,7 @@ public class MainPageController implements Initializable {
     /**
      * reload tasks from the DB (replace current collection by the data from database)
      */
-    private void reloadTasks()
-    {
+    private void reloadTasks() {
         tasks.clear();
         tasks.addAll(taskRepository.getAll());
     }

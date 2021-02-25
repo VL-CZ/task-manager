@@ -1,5 +1,6 @@
 package mff.java.repositories;
 
+import mff.java.db.DbManager;
 import mff.java.models.Task;
 
 import java.sql.*;
@@ -11,10 +12,10 @@ public class TaskRepository implements ITaskRepository {
     /**
      * connection to the database
      */
-    private final Connection dbConnection;
+    private final DbManager dbManager;
 
-    public TaskRepository(Connection dbConnection) {
-        this.dbConnection = dbConnection;
+    public TaskRepository(DbManager dbManager) {
+        this.dbManager = dbManager;
     }
 
     /**
@@ -23,7 +24,7 @@ public class TaskRepository implements ITaskRepository {
     @Override
     public List<Task> getAll() {
         var tasks = new ArrayList<Task>();
-        try {
+        try (var dbConnection = dbManager.getConnection()) {
             Statement statement = dbConnection.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
             ResultSet rs = statement.executeQuery("select * from tasks");
@@ -44,9 +45,8 @@ public class TaskRepository implements ITaskRepository {
      */
     @Override
     public void delete(Task task) {
-        PreparedStatement statement = null;
-        try {
-            statement = dbConnection.prepareStatement("delete from tasks where id=?");
+        try (var dbConnection = dbManager.getConnection()) {
+            PreparedStatement statement = dbConnection.prepareStatement("delete from tasks where id=?");
             statement.setInt(1, task.getId());
             statement.execute();
         }
@@ -60,7 +60,7 @@ public class TaskRepository implements ITaskRepository {
      */
     @Override
     public void update(Task task) {
-        try {
+        try (var dbConnection = dbManager.getConnection()) {
             PreparedStatement statement = dbConnection.prepareStatement("update tasks set title=?, description=?, status=? where id=?");
             statement.setString(1, task.getTitle());
             statement.setString(2, task.getDescription());
@@ -78,7 +78,7 @@ public class TaskRepository implements ITaskRepository {
      */
     @Override
     public void add(Task task) {
-        try {
+        try (var dbConnection = dbManager.getConnection()) {
             PreparedStatement statement = dbConnection.prepareStatement("insert into tasks(title, description, status) values (?,?,?)");
             statement.setString(1, task.getTitle());
             statement.setString(2, task.getDescription());
