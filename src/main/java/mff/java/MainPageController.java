@@ -4,9 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
@@ -14,6 +13,7 @@ import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainPageController implements Initializable {
@@ -41,10 +41,10 @@ public class MainPageController implements Initializable {
     private TextField newTaskTitle;
 
     /**
-     * new name of the task to update
+     * description of the task to add
      */
     @FXML
-    private TextField updatedTaskTitle;
+    private TextArea newTaskDescription;
 
     /**
      * details VBox
@@ -52,27 +52,48 @@ public class MainPageController implements Initializable {
     @FXML
     private VBox detailsVBox;
 
+    /**
+     * title of the currently selected task
+     */
     @FXML
     private TextField taskDetailTitle;
 
+    /**
+     * description of the currently selected task
+     */
     @FXML
     private TextArea taskDetailDescription;
 
+    /**
+     * status of the currently selected task
+     */
     @FXML
     private TextField taskDetailStatus;
+
+    /**
+     * button "Edit task"
+     */
+    @FXML
+    private Button editTaskButton;
+
+    /**
+     * Box with update-task buttons
+     */
+    @FXML
+    private HBox editTaskControlButtons;
 
     /**
      * add new task to the list
      */
     @FXML
     private void addTask() {
-        String newTaskTitle = this.newTaskTitle.getText();
-        var task = new Task(0, newTaskTitle, newTaskTitle, null);
+        var task = new Task(0, newTaskTitle.getText(), newTaskDescription.getText(), null);
         taskRepository.add(task);
-        this.newTaskTitle.clear();
 
-        tasks.clear();
-        tasks.addAll(taskRepository.getAll());
+        newTaskTitle.clear();
+        newTaskDescription.clear();
+
+        reloadTasks();
     }
 
     /**
@@ -81,35 +102,34 @@ public class MainPageController implements Initializable {
     @FXML
     private void removeTask() {
         var taskToRemove = getSelectedFromTaskList();
-        taskRepository.delete(taskToRemove);
-        tasks.remove(taskToRemove);
+
+        if (taskToRemove == null) {
+            // TO-DO show error
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete a task");
+        alert.setHeaderText("Do you really want to delete the task " + taskToRemove.getTitle() + " ?");
+        alert.setContentText("This action can't be undone!");
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        // OK clicked
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            taskRepository.delete(taskToRemove);
+            tasks.remove(taskToRemove);
+        }
     }
 
     /**
-     * update selected task
+     * handle task update
      */
     @FXML
     private void updateTask() {
-        var taskToUpdate = getSelectedFromTaskList();
-        var newTitle = updatedTaskTitle.getText();
-
-        taskToUpdate.setTitle(newTitle);
-        taskRepository.update(taskToUpdate);
-
-        updatedTaskTitle.clear();
-        reloadTasks();
-    }
-
-    /**
-     * show details of the task
-     *
-     * @param task task to show
-     */
-    private void showTaskDetails(Task task) {
-        taskDetailTitle.setText(task.toString());
-        taskDetailDescription.setText(task.getDescription());
-        taskDetailStatus.setText(task.getStatus().toString());
-        detailsVBox.setVisible(true);
+        allowEditingInTaskDetail();
+        editTaskControlButtons.setVisible(true);
+        editTaskButton.setVisible(false);
     }
 
     /**
@@ -128,6 +148,35 @@ public class MainPageController implements Initializable {
         taskList.setItems(tasks);
 
         setTaskListOnChangeHandler();
+    }
+
+//    /**
+//     * update selected task
+//     *
+//     * @param taskToUpdate task to update
+//     */
+//    private void updateTask(Task taskToUpdate) {
+//        var newTitle = taskDetailTitle.getText();
+//        var newDescription = taskDetailDescription.getText();
+//
+//        taskToUpdate.setTitle(newTitle);
+//        taskToUpdate.setDescription(newDescription);
+//        taskRepository.update(taskToUpdate);
+//
+//        updatedTaskTitle.clear();
+//        reloadTasks();
+//    }
+
+    /**
+     * show details of the task
+     *
+     * @param task task to show
+     */
+    private void showTaskDetails(Task task) {
+        taskDetailTitle.setText(task.toString());
+        taskDetailDescription.setText(task.getDescription());
+        taskDetailStatus.setText(task.getStatus().toString());
+        detailsVBox.setVisible(true);
     }
 
     /**
@@ -156,4 +205,13 @@ public class MainPageController implements Initializable {
         });
     }
 
+    /**
+     * allow to edit items in task detail section
+     */
+    private void allowEditingInTaskDetail()
+    {
+        taskDetailTitle.setDisable(false);
+        taskDetailDescription.setDisable(false);
+        taskDetailStatus.setDisable(false);
+    }
 }
