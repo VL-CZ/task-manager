@@ -1,17 +1,13 @@
 package mff.java;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
 import mff.java.repositories.ITaskRepository;
@@ -104,9 +100,12 @@ public class MainPageController implements Initializable {
         reloadTasks();
     }
 
-    @FXML
-    private void showTaskDetails() {
-        var task = getSelectedFromTaskList();
+    /**
+     * show details of the task
+     *
+     * @param task task to show
+     */
+    private void showTaskDetails(Task task) {
         taskDetailTitle.setText(task.toString());
         taskDetailDescription.setText(task.getDescription());
         taskDetailStatus.setText(task.getStatus().toString());
@@ -127,6 +126,8 @@ public class MainPageController implements Initializable {
 
         reloadTasks();
         taskList.setItems(tasks);
+
+        setTaskListOnChangeHandler();
     }
 
     /**
@@ -140,9 +141,19 @@ public class MainPageController implements Initializable {
     /**
      * get selected task from {@link #taskList}
      *
-     * @return
+     * @return selected task
      */
     private Task getSelectedFromTaskList() {
         return taskList.getSelectionModel().getSelectedItem();
     }
+
+    /**
+     * set {@link #taskList} on select handler - show task details
+     */
+    private void setTaskListOnChangeHandler() {
+        taskList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            showTaskDetails(newValue);
+        });
+    }
+
 }

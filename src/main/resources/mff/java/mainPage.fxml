@@ -19,8 +19,6 @@
 
         <HBox alignment="CENTER" spacing="10">
             <Button onAction="#addTask">Add</Button>
-            <Button onAction="#showTaskDetails">Details</Button>
-            <Button onAction="#updateTask">Update</Button>
             <Button onAction="#removeTask">Delete</Button>
         </HBox>
         <VBox alignment="TOP_CENTER">
