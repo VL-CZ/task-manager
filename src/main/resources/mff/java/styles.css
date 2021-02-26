@@ -1,11 +1,19 @@
-.root{
+.root {
     -fx-font-size: 15px;
 }
 
-.button{
+.button {
     -fx-padding: 15px;
 }
 
-.headline{
+.headline {
     -fx-font-size: 30px;
+}
+
+.disabled {
+    -fx-opacity: 1.0;
+}
+
+.text-area {
+    -fx-wrap-text: true;
 }

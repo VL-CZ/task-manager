@@ -1,12 +1,17 @@
 package mff.java;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
 import mff.java.repositories.ITaskRepository;
@@ -44,6 +49,21 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private TextField updatedTaskTitle;
+
+    /**
+     * details VBox
+     */
+    @FXML
+    private VBox detailsVBox;
+
+    @FXML
+    private TextField taskDetailTitle;
+
+    @FXML
+    private TextArea taskDetailDescription;
+
+    @FXML
+    private TextField taskDetailStatus;
 
     /**
      * add new task to the list
@@ -87,9 +107,10 @@ public class MainPageController implements Initializable {
     @FXML
     private void showTaskDetails() {
         var task = getSelectedFromTaskList();
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Delete ");
-        alert.showAndWait();
-
+        taskDetailTitle.setText(task.toString());
+        taskDetailDescription.setText(task.getDescription());
+        taskDetailStatus.setText(task.getStatus().toString());
+        detailsVBox.setVisible(true);
     }
 
     /**
@@ -106,7 +127,6 @@ public class MainPageController implements Initializable {
 
         reloadTasks();
         taskList.setItems(tasks);
-
     }
 
     /**
@@ -119,9 +139,10 @@ public class MainPageController implements Initializable {
 
     /**
      * get selected task from {@link #taskList}
+     *
      * @return
      */
-    private Task getSelectedFromTaskList(){
+    private Task getSelectedFromTaskList() {
         return taskList.getSelectionModel().getSelectedItem();
     }
 }
