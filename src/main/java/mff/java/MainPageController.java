@@ -10,11 +10,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
+import mff.java.models.TaskStatus;
 import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -31,7 +31,12 @@ public class MainPageController implements Initializable {
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
 
     /**
-     * task detail template
+     * observable list of all
+     */
+    private final ObservableList<TaskStatus> allTasksStatuses = FXCollections.observableArrayList(TaskStatus.values());
+
+    /**
+     * task detail headline template
      */
     private static final String taskDetailTemplate = "Task #%d detail";
 
@@ -54,11 +59,20 @@ public class MainPageController implements Initializable {
     private TextArea newTaskDescription;
 
     /**
+     * estimated time of the new task
+     */
+    @FXML
+    private TextField newTaskEstimation;
+
+    /**
      * details VBox
      */
     @FXML
     private VBox detailsVBox;
 
+    /**
+     * headline of task detail section
+     */
     @FXML
     private Text taskDetailHeadline;
 
@@ -78,7 +92,13 @@ public class MainPageController implements Initializable {
      * status of the currently selected task
      */
     @FXML
-    private TextField taskDetailStatus;
+    private ComboBox<TaskStatus> taskDetailStatus;
+
+    /**
+     * estimation (in hours) of currently selected task
+     */
+    @FXML
+    private TextField taskDetailEstimation;
 
     /**
      * button "Edit task"
@@ -103,11 +123,17 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void addTask() {
-        var task = new Task(0, newTaskTitle.getText(), newTaskDescription.getText(), null);
+        int estimation = Integer.parseInt(newTaskEstimation.getText());
+
+        // TO-DO check if not null
+
+        var task = new Task(0, newTaskTitle.getText(), newTaskDescription.getText(), estimation);
         taskRepository.add(task);
 
-        newTaskTitle.clear();
-        newTaskDescription.clear();
+        var newTaskInputs = new TextInputControl[]{newTaskTitle, newTaskDescription, newTaskEstimation};
+        for (var input : newTaskInputs) {
+            input.clear();
+        }
 
         reloadTasks();
     }
@@ -157,7 +183,7 @@ public class MainPageController implements Initializable {
     }
 
     /**
-     * update currenly selected task in {@link #taskList} listview
+     * update currently selected task in {@link #taskList} listview
      */
     @FXML
     private void updateTask() {
@@ -165,8 +191,13 @@ public class MainPageController implements Initializable {
 
         cancelTaskEditing();
 
+        int estimation = IntegerHelpers.tryGetInt(taskDetailEstimation.getText(), taskToUpdate.getEstimation());
+
         taskToUpdate.setTitle(taskDetailTitle.getText());
         taskToUpdate.setDescription(taskDetailDescription.getText());
+        taskToUpdate.setStatus(taskDetailStatus.getValue());
+        taskToUpdate.setEstimation(estimation);
+
         taskRepository.update(taskToUpdate);
 
         reloadTasks();
@@ -186,8 +217,25 @@ public class MainPageController implements Initializable {
 
         reloadTasks();
         taskList.setItems(tasks);
-
         setTaskListOnChangeHandler();
+
+        setNumericContent(newTaskEstimation);
+        setNumericContent(taskDetailEstimation);
+    }
+
+    /**
+     * set that given textField can have only positive numeric values
+     *
+     * @param textField given TextField control
+     */
+    private void setNumericContent(TextField textField) {
+        textField.setText("");
+        textField.textProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (!newValue.matches("^[0-9]{0,5}$")) {
+                        newTaskEstimation.setText(oldValue);
+                    }
+                });
     }
 
     /**
@@ -201,7 +249,12 @@ public class MainPageController implements Initializable {
         taskDetailHeadline.setText(taskHeadline);
         taskDetailTitle.setText(task.getTitle());
         taskDetailDescription.setText(task.getDescription());
-        taskDetailStatus.setText(task.getStatus().toString());
+
+        taskDetailStatus.setItems(allTasksStatuses);
+        taskDetailStatus.setValue(task.getStatus());
+
+        var estimationText = ((Integer) task.getEstimation()).toString();
+        taskDetailEstimation.setText(estimationText);
 
         detailsVBox.setVisible(true);
     }
@@ -240,7 +293,7 @@ public class MainPageController implements Initializable {
      */
     private void canEditTaskDetail(boolean allowEditing) {
         boolean isDisabled = !allowEditing;
-        var taskInputs = new Node[]{taskDetailTitle, taskDetailDescription, taskDetailStatus};
+        var taskInputs = new Node[]{taskDetailTitle, taskDetailDescription, taskDetailStatus, taskDetailEstimation};
 
         for (var taskInput : taskInputs) {
             taskInput.setDisable(isDisabled);

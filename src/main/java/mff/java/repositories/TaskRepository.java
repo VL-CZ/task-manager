@@ -61,11 +61,13 @@ public class TaskRepository implements ITaskRepository {
     @Override
     public void update(Task task) {
         try (var dbConnection = dbManager.getConnection()) {
-            PreparedStatement statement = dbConnection.prepareStatement("update tasks set title=?, description=?, status=? where id=?");
+            PreparedStatement statement = dbConnection.prepareStatement("update tasks set title=?, description=?, status=?, estimation=? where id=?");
             statement.setString(1, task.getTitle());
             statement.setString(2, task.getDescription());
-            statement.setString(3, task.getStatus().toString());
-            statement.setInt(4, task.getId());
+            statement.setInt(3, task.getStatus().ordinal());
+            statement.setInt(4, task.getEstimation());
+
+            statement.setInt(5, task.getId());
             statement.execute();
         }
         catch (SQLException throwables) {
@@ -79,10 +81,11 @@ public class TaskRepository implements ITaskRepository {
     @Override
     public void add(Task task) {
         try (var dbConnection = dbManager.getConnection()) {
-            PreparedStatement statement = dbConnection.prepareStatement("insert into tasks(title, description, status) values (?,?,?)");
+            PreparedStatement statement = dbConnection.prepareStatement("insert into tasks(title, description, status, estimation) values (?,?,?,?)");
             statement.setString(1, task.getTitle());
             statement.setString(2, task.getDescription());
-            statement.setString(3, task.getStatus().toString());
+            statement.setInt(3, task.getStatus().ordinal());
+            statement.setInt(4, task.getEstimation());
             statement.execute();
         }
         catch (SQLException throwables) {

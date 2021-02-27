@@ -59,7 +59,8 @@ public class DbManager {
                     "id"	INTEGER NOT NULL UNIQUE,
                     "title"	TEXT,
                     "description"	TEXT,
-                    "status"	TEXT,
+                    "status"	INTEGER,
+                    "estimation"	INTEGER,
                     PRIMARY KEY("id" AUTOINCREMENT)
                 )
                 """;
