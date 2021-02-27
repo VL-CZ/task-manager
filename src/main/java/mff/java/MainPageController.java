@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
+import mff.java.models.TaskStatus;
 import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
 
@@ -28,6 +29,11 @@ public class MainPageController implements Initializable {
      * list of tasks
      */
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
+
+    /**
+     * observable list of all
+     */
+    private final ObservableList<TaskStatus> allTasksStatuses = FXCollections.observableArrayList(TaskStatus.values());
 
     /**
      * task detail headline template
@@ -80,7 +86,7 @@ public class MainPageController implements Initializable {
      * status of the currently selected task
      */
     @FXML
-    private TextField taskDetailStatus;
+    private ComboBox<TaskStatus> taskDetailStatus;
 
     /**
      * button "Edit task"
@@ -169,6 +175,7 @@ public class MainPageController implements Initializable {
 
         taskToUpdate.setTitle(taskDetailTitle.getText());
         taskToUpdate.setDescription(taskDetailDescription.getText());
+        taskToUpdate.setStatus(taskDetailStatus.getValue());
         taskRepository.update(taskToUpdate);
 
         reloadTasks();
@@ -203,7 +210,9 @@ public class MainPageController implements Initializable {
         taskDetailHeadline.setText(taskHeadline);
         taskDetailTitle.setText(task.getTitle());
         taskDetailDescription.setText(task.getDescription());
-        taskDetailStatus.setText(task.getStatus().toString());
+
+        taskDetailStatus.setItems(allTasksStatuses);
+        taskDetailStatus.setValue(task.getStatus());
 
         detailsVBox.setVisible(true);
     }

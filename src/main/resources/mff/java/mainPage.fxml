@@ -36,13 +36,13 @@
         </VBox>
 
         <Text>Title:</Text>
-        <TextField fx:id="taskDetailTitle" disable="true" styleClass="disabled-opaque"/>
+        <TextField fx:id="taskDetailTitle" disable="true"/>
 
         <Text>Description:</Text>
-        <TextArea fx:id="taskDetailDescription" disable="true" styleClass="disabled-opaque"/>
+        <TextArea fx:id="taskDetailDescription" disable="true"/>
 
         <Text>Status:</Text>
-        <TextField fx:id="taskDetailStatus" disable="true" styleClass="disabled-opaque"/>
+        <ComboBox fx:id="taskDetailStatus" disable="true"/>
 
         <HBox alignment="TOP_CENTER" styleClass="box">
             <Button fx:id="startTaskEditingButton" onAction="#startTaskEditing">Edit</Button>
