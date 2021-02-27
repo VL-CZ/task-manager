@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-
-
 <GridPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="mff.java.MainPageController" stylesheets="@styles.css">
-    <VBox alignment="TOP_CENTER" spacing="20.0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" styleClass="box">
+    <VBox alignment="TOP_CENTER" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" styleClass="box">
 
         <Text styleClass="headline1">Task manager</Text>
 
         <ListView fx:id="taskList"/>
 
-        <HBox alignment="CENTER" spacing="10">
+        <HBox alignment="CENTER" styleClass="box">
             <Button onAction="#removeTask">Delete</Button>
         </HBox>
-        <VBox spacing="10" styleClass="box, bordered-box">
+        <VBox styleClass="box, bordered-box">
             <VBox alignment="CENTER">
                 <Text styleClass="headline2">Add new task</Text>
             </VBox>
-            <Text>Name:</Text>
+            <Text>Title:</Text>
             <TextField fx:id="newTaskTitle"/>
 
             <Text>Description:</Text>
@@ -32,18 +29,25 @@
             </VBox>
         </VBox>
     </VBox>
-    <VBox GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" visible="false" alignment="TOP_CENTER"
-          fx:id="detailsVBox" styleClass="box" spacing="10">
+    <VBox GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" visible="false"
+          fx:id="detailsVBox" styleClass="box">
+
         <Text styleClass="headline2">Task Detail</Text>
-        <TextField fx:id="taskDetailTitle" disable="true" styleClass="disabled"/>
-        <TextArea fx:id="taskDetailDescription" disable="true" styleClass="disabled"/>
-        <TextField fx:id="taskDetailStatus" disable="true" styleClass="disabled"/>
-        <HBox alignment="TOP_CENTER">
-            <Button onAction="#updateTask" fx:id="editTaskButton">Edit</Button>
-            <HBox alignment="CENTER_LEFT" fx:id="editTaskControlButtons" visible="false">
-                <Button>OK</Button>
-                <Button>Cancel</Button>
-            </HBox>
+
+        <Text>Title:</Text>
+        <TextField fx:id="taskDetailTitle" disable="true" styleClass="disabled-opaque"/>
+
+        <Text>Description:</Text>
+        <TextArea fx:id="taskDetailDescription" disable="true" styleClass="disabled-opaque"/>
+
+        <Text>Status:</Text>
+        <TextField fx:id="taskDetailStatus" disable="true" styleClass="disabled-opaque"/>
+
+        <HBox alignment="TOP_CENTER" styleClass="box">
+            <Button fx:id="startTaskEditingButton" onAction="#startTaskEditing">Edit</Button>
+            <Button fx:id="confirmTaskEditingButton" onAction="#updateTask" visible="false">OK</Button>
+            <Button fx:id="cancelTaskEditingButton" onAction="#cancelTaskEditing" visible="false">Cancel</Button>
         </HBox>
+
     </VBox>
 </GridPane>

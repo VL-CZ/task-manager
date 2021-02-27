@@ -4,15 +4,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
 import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -52,6 +54,9 @@ public class MainPageController implements Initializable {
     @FXML
     private VBox detailsVBox;
 
+    @FXML
+    private Text taskDetailId;
+
     /**
      * title of the currently selected task
      */
@@ -74,13 +79,19 @@ public class MainPageController implements Initializable {
      * button "Edit task"
      */
     @FXML
-    private Button editTaskButton;
+    private Button startTaskEditingButton;
 
     /**
-     * Box with update-task buttons
+     * Button to cancel task edition
      */
     @FXML
-    private HBox editTaskControlButtons;
+    private Button cancelTaskEditingButton;
+
+    /**
+     * Button to confirm task edition
+     */
+    @FXML
+    private Button confirmTaskEditingButton;
 
     /**
      * add new task to the list
@@ -97,7 +108,7 @@ public class MainPageController implements Initializable {
     }
 
     /**
-     * remove selected task from the list
+     * remove selected task in {@link #taskList} listview from the list
      */
     @FXML
     private void removeTask() {
@@ -123,13 +134,37 @@ public class MainPageController implements Initializable {
     }
 
     /**
-     * handle task update
+     * start editing of the selected task in {@link #taskList} listview
+     */
+    @FXML
+    private void startTaskEditing() {
+        canEditTaskDetail(true);
+        setEditButtonsVisibility(true);
+    }
+
+    /**
+     * cancel editing of the selected task in {@link #taskList} listview
+     */
+    @FXML
+    private void cancelTaskEditing() {
+        canEditTaskDetail(false);
+        setEditButtonsVisibility(false);
+    }
+
+    /**
+     * update currenly selected task in {@link #taskList} listview
      */
     @FXML
     private void updateTask() {
-        allowEditingInTaskDetail();
-        editTaskControlButtons.setVisible(true);
-        editTaskButton.setVisible(false);
+        var taskToUpdate = getSelectedFromTaskList();
+
+        cancelTaskEditing();
+
+        taskToUpdate.setTitle(taskDetailTitle.getText());
+        taskToUpdate.setDescription(taskDetailDescription.getText());
+        taskRepository.update(taskToUpdate);
+
+        reloadTasks();
     }
 
     /**
@@ -150,30 +185,13 @@ public class MainPageController implements Initializable {
         setTaskListOnChangeHandler();
     }
 
-//    /**
-//     * update selected task
-//     *
-//     * @param taskToUpdate task to update
-//     */
-//    private void updateTask(Task taskToUpdate) {
-//        var newTitle = taskDetailTitle.getText();
-//        var newDescription = taskDetailDescription.getText();
-//
-//        taskToUpdate.setTitle(newTitle);
-//        taskToUpdate.setDescription(newDescription);
-//        taskRepository.update(taskToUpdate);
-//
-//        updatedTaskTitle.clear();
-//        reloadTasks();
-//    }
-
     /**
      * show details of the task
      *
      * @param task task to show
      */
     private void showTaskDetails(Task task) {
-        taskDetailTitle.setText(task.toString());
+        taskDetailTitle.setText(task.getTitle());
         taskDetailDescription.setText(task.getDescription());
         taskDetailStatus.setText(task.getStatus().toString());
         detailsVBox.setVisible(true);
@@ -188,7 +206,7 @@ public class MainPageController implements Initializable {
     }
 
     /**
-     * get selected task from {@link #taskList}
+     * get selected task from {@link #taskList} listview
      *
      * @return selected task
      */
@@ -201,17 +219,40 @@ public class MainPageController implements Initializable {
      */
     private void setTaskListOnChangeHandler() {
         taskList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            showTaskDetails(newValue);
+            if (newValue != null)
+                showTaskDetails(newValue);
         });
     }
 
     /**
-     * allow to edit items in task detail section
+     * set if task detail form fields can be edited
+     *
+     * @param allowEditing allow/disable editing?
      */
-    private void allowEditingInTaskDetail()
-    {
-        taskDetailTitle.setDisable(false);
-        taskDetailDescription.setDisable(false);
-        taskDetailStatus.setDisable(false);
+    private void canEditTaskDetail(boolean allowEditing) {
+        boolean isDisabled = !allowEditing;
+        var taskInputs = new Node[]{taskDetailTitle, taskDetailDescription, taskDetailStatus};
+
+        for (var taskInput : taskInputs) {
+            taskInput.setDisable(isDisabled);
+        }
+    }
+
+    /**
+     * Set visibility of buttons for task editing
+     *
+     * @param canEdit can user edit the inputs?
+     */
+    private void setEditButtonsVisibility(boolean canEdit) {
+        if (canEdit) {
+            startTaskEditingButton.setVisible(false);
+            confirmTaskEditingButton.setVisible(true);
+            cancelTaskEditingButton.setVisible(true);
+        }
+        else {
+            startTaskEditingButton.setVisible(true);
+            confirmTaskEditingButton.setVisible(false);
+            cancelTaskEditingButton.setVisible(false);
+        }
     }
 }
