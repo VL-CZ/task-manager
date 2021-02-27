@@ -4,14 +4,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
 import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainPageController implements Initializable {
@@ -27,6 +31,11 @@ public class MainPageController implements Initializable {
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
 
     /**
+     * task detail template
+     */
+    private static final String taskDetailTemplate = "Task #%d detail";
+
+    /**
      * ListView control with all tasks (bound to {@link #tasks})
      */
     @FXML
@@ -39,47 +48,127 @@ public class MainPageController implements Initializable {
     private TextField newTaskTitle;
 
     /**
-     * new name of the task to update
+     * description of the task to add
      */
     @FXML
-    private TextField updatedTaskTitle;
+    private TextArea newTaskDescription;
+
+    /**
+     * details VBox
+     */
+    @FXML
+    private VBox detailsVBox;
+
+    @FXML
+    private Text taskDetailHeadline;
+
+    /**
+     * title of the currently selected task
+     */
+    @FXML
+    private TextField taskDetailTitle;
+
+    /**
+     * description of the currently selected task
+     */
+    @FXML
+    private TextArea taskDetailDescription;
+
+    /**
+     * status of the currently selected task
+     */
+    @FXML
+    private TextField taskDetailStatus;
+
+    /**
+     * button "Edit task"
+     */
+    @FXML
+    private Button startTaskEditingButton;
+
+    /**
+     * Button to cancel task edition
+     */
+    @FXML
+    private Button cancelTaskEditingButton;
+
+    /**
+     * Button to confirm task edition
+     */
+    @FXML
+    private Button confirmTaskEditingButton;
 
     /**
      * add new task to the list
      */
     @FXML
     private void addTask() {
-        String newTaskTitle = this.newTaskTitle.getText();
-        var task = new Task(0, newTaskTitle, newTaskTitle, null);
+        var task = new Task(0, newTaskTitle.getText(), newTaskDescription.getText(), null);
         taskRepository.add(task);
-        this.newTaskTitle.clear();
 
-        tasks.clear();
-        tasks.addAll(taskRepository.getAll());
+        newTaskTitle.clear();
+        newTaskDescription.clear();
+
+        reloadTasks();
     }
 
     /**
-     * remove selected task from the list
+     * remove selected task in {@link #taskList} listview from the list
      */
     @FXML
     private void removeTask() {
-        var taskToRemove = taskList.getSelectionModel().getSelectedItem();
-        taskRepository.delete(taskToRemove);
-        tasks.remove(taskToRemove);
+        var taskToRemove = getSelectedFromTaskList();
+
+        if (taskToRemove == null) {
+            // TO-DO show error
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete a task");
+        alert.setHeaderText("Do you really want to delete the task " + taskToRemove.getTitle() + " ?");
+        alert.setContentText("This action can't be undone!");
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        // OK clicked
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            taskRepository.delete(taskToRemove);
+            tasks.remove(taskToRemove);
+        }
     }
 
     /**
-     * update selected task
+     * start editing of the selected task in {@link #taskList} listview
+     */
+    @FXML
+    private void startTaskEditing() {
+        canEditTaskDetail(true);
+        setEditButtonsVisibility(true);
+    }
+
+    /**
+     * cancel editing of the selected task in {@link #taskList} listview
+     */
+    @FXML
+    private void cancelTaskEditing() {
+        canEditTaskDetail(false);
+        setEditButtonsVisibility(false);
+    }
+
+    /**
+     * update currenly selected task in {@link #taskList} listview
      */
     @FXML
     private void updateTask() {
-        var taskToUpdate = taskList.getSelectionModel().getSelectedItem();
-        var newTitle = updatedTaskTitle.getText();
+        var taskToUpdate = getSelectedFromTaskList();
 
-        taskToUpdate.setTitle(newTitle);
+        cancelTaskEditing();
+
+        taskToUpdate.setTitle(taskDetailTitle.getText());
+        taskToUpdate.setDescription(taskDetailDescription.getText());
         taskRepository.update(taskToUpdate);
 
-        updatedTaskTitle.clear();
         reloadTasks();
     }
 
@@ -98,6 +187,23 @@ public class MainPageController implements Initializable {
         reloadTasks();
         taskList.setItems(tasks);
 
+        setTaskListOnChangeHandler();
+    }
+
+    /**
+     * show details of the task
+     *
+     * @param task task to show
+     */
+    private void showTaskDetails(Task task) {
+        String taskHeadline = String.format(taskDetailTemplate, task.getId());
+
+        taskDetailHeadline.setText(taskHeadline);
+        taskDetailTitle.setText(task.getTitle());
+        taskDetailDescription.setText(task.getDescription());
+        taskDetailStatus.setText(task.getStatus().toString());
+
+        detailsVBox.setVisible(true);
     }
 
     /**
@@ -106,5 +212,56 @@ public class MainPageController implements Initializable {
     private void reloadTasks() {
         tasks.clear();
         tasks.addAll(taskRepository.getAll());
+    }
+
+    /**
+     * get selected task from {@link #taskList} listview
+     *
+     * @return selected task
+     */
+    private Task getSelectedFromTaskList() {
+        return taskList.getSelectionModel().getSelectedItem();
+    }
+
+    /**
+     * set {@link #taskList} on select handler - show task details
+     */
+    private void setTaskListOnChangeHandler() {
+        taskList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null)
+                showTaskDetails(newValue);
+        });
+    }
+
+    /**
+     * set if task detail form fields can be edited
+     *
+     * @param allowEditing allow/disable editing?
+     */
+    private void canEditTaskDetail(boolean allowEditing) {
+        boolean isDisabled = !allowEditing;
+        var taskInputs = new Node[]{taskDetailTitle, taskDetailDescription, taskDetailStatus};
+
+        for (var taskInput : taskInputs) {
+            taskInput.setDisable(isDisabled);
+        }
+    }
+
+    /**
+     * Set visibility of buttons for task editing
+     *
+     * @param canEdit can user edit the inputs?
+     */
+    private void setEditButtonsVisibility(boolean canEdit) {
+        if (canEdit) {
+            startTaskEditingButton.setVisible(false);
+            confirmTaskEditingButton.setVisible(true);
+            cancelTaskEditingButton.setVisible(true);
+        }
+        else {
+            startTaskEditingButton.setVisible(true);
+            confirmTaskEditingButton.setVisible(false);
+            cancelTaskEditingButton.setVisible(false);
+        }
     }
 }

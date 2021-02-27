@@ -1,3 +1,7 @@
+## Requirements
+- JDK/JRE 15
+- Maven
+
 ## Run
 
 ```shell
