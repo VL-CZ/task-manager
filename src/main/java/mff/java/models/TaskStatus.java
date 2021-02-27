@@ -6,5 +6,14 @@ package mff.java.models;
 public enum TaskStatus {
     New,
     InProgress,
-    Completed
+    Completed;
+
+    /**
+     * get TaskStatus value from integer
+     * @param i
+     * @return
+     */
+    public static TaskStatus fromInteger(int i) {
+        return TaskStatus.values()[i];
+    }
 }

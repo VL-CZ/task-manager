@@ -64,7 +64,8 @@ public class TaskRepository implements ITaskRepository {
             PreparedStatement statement = dbConnection.prepareStatement("update tasks set title=?, description=?, status=? where id=?");
             statement.setString(1, task.getTitle());
             statement.setString(2, task.getDescription());
-            statement.setString(3, task.getStatus().toString());
+            statement.setInt(3, task.getStatus().ordinal());
+
             statement.setInt(4, task.getId());
             statement.execute();
         }
@@ -82,7 +83,7 @@ public class TaskRepository implements ITaskRepository {
             PreparedStatement statement = dbConnection.prepareStatement("insert into tasks(title, description, status) values (?,?,?)");
             statement.setString(1, task.getTitle());
             statement.setString(2, task.getDescription());
-            statement.setString(3, task.getStatus().toString());
+            statement.setInt(3, task.getStatus().ordinal());
             statement.execute();
         }
         catch (SQLException throwables) {

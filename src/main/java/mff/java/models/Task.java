@@ -2,21 +2,23 @@ package mff.java.models;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 
 public class Task {
     private final int id;
     private String title;
     private String description;
     private TaskStatus status;
-    private LocalDateTime deadline;
 
-    public Task(int id, String title, String description, LocalDateTime deadline) {
+    public Task(int id, String title, String description) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.status = TaskStatus.New;
-        this.deadline = deadline;
+    }
+
+    private Task(int id, String title, String description, TaskStatus status) {
+        this(id, title, description);
+        this.status = status;
     }
 
     public int getId() {
@@ -35,10 +37,6 @@ public class Task {
         return status;
     }
 
-    public LocalDateTime getDeadline() {
-        return deadline;
-    }
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -51,17 +49,14 @@ public class Task {
         this.status = status;
     }
 
-    public void setDeadline(LocalDateTime deadline) {
-        this.deadline = deadline;
-    }
-
     @Override
     public String toString() {
-        return  id + ": " + title;
+        return id + ": " + title;
     }
 
     /**
      * create new task from ResultSet
+     *
      * @param rs given ResultSet
      * @return created task
      * @throws SQLException
@@ -70,7 +65,8 @@ public class Task {
         int id = rs.getInt("id");
         String title = rs.getString("title");
         String description = rs.getString("description");
+        int status = rs.getInt("status");
 
-        return new Task(id, title, description, null);
+        return new Task(id, title, description, TaskStatus.fromInteger(status));
     }
 }

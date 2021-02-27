@@ -105,7 +105,7 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void addTask() {
-        var task = new Task(0, newTaskTitle.getText(), newTaskDescription.getText(), null);
+        var task = new Task(0, newTaskTitle.getText(), newTaskDescription.getText());
         taskRepository.add(task);
 
         newTaskTitle.clear();
