@@ -14,7 +14,6 @@ import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -31,7 +30,7 @@ public class MainPageController implements Initializable {
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
 
     /**
-     * task detail template
+     * task detail headline template
      */
     private static final String taskDetailTemplate = "Task #%d detail";
 
@@ -59,6 +58,9 @@ public class MainPageController implements Initializable {
     @FXML
     private VBox detailsVBox;
 
+    /**
+     * headline of task detail section
+     */
     @FXML
     private Text taskDetailHeadline;
 
@@ -157,7 +159,7 @@ public class MainPageController implements Initializable {
     }
 
     /**
-     * update currenly selected task in {@link #taskList} listview
+     * update currently selected task in {@link #taskList} listview
      */
     @FXML
     private void updateTask() {
