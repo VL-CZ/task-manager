@@ -31,8 +31,9 @@
     </VBox>
     <VBox GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" visible="false"
           fx:id="detailsVBox" styleClass="box">
-
-        <Text styleClass="headline2">Task Detail</Text>
+        <VBox alignment="CENTER">
+            <Text fx:id="taskDetailHeadline" styleClass="headline2"/>
+        </VBox>
 
         <Text>Title:</Text>
         <TextField fx:id="taskDetailTitle" disable="true" styleClass="disabled-opaque"/>

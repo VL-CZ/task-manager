@@ -31,6 +31,11 @@ public class MainPageController implements Initializable {
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
 
     /**
+     * task detail template
+     */
+    private static final String taskDetailTemplate = "Task #%d detail";
+
+    /**
      * ListView control with all tasks (bound to {@link #tasks})
      */
     @FXML
@@ -55,7 +60,7 @@ public class MainPageController implements Initializable {
     private VBox detailsVBox;
 
     @FXML
-    private Text taskDetailId;
+    private Text taskDetailHeadline;
 
     /**
      * title of the currently selected task
@@ -191,9 +196,13 @@ public class MainPageController implements Initializable {
      * @param task task to show
      */
     private void showTaskDetails(Task task) {
+        String taskHeadline = String.format(taskDetailTemplate, task.getId());
+
+        taskDetailHeadline.setText(taskHeadline);
         taskDetailTitle.setText(task.getTitle());
         taskDetailDescription.setText(task.getDescription());
         taskDetailStatus.setText(task.getStatus().toString());
+
         detailsVBox.setVisible(true);
     }
 
