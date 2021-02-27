@@ -9,7 +9,7 @@ public class TaskTest {
 
     @Test
     public void testStatus() {
-        Task task = new Task(1, "Title", "Description");
+        Task task = new Task(1, "Title", "Description", 5);
         Assertions.assertEquals(TaskStatus.New, task.getStatus());
     }
 }

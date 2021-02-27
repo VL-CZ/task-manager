@@ -9,15 +9,18 @@ public class Task {
     private String description;
     private TaskStatus status;
 
-    public Task(int id, String title, String description) {
+    private int estimation;
+
+    public Task(int id, String title, String description, int estimation) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.status = TaskStatus.New;
+        this.estimation = estimation;
     }
 
-    private Task(int id, String title, String description, TaskStatus status) {
-        this(id, title, description);
+    private Task(int id, String title, String description, int estimation, TaskStatus status) {
+        this(id, title, description, estimation);
         this.status = status;
     }
 
@@ -37,6 +40,10 @@ public class Task {
         return status;
     }
 
+    public int getEstimation() {
+        return estimation;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -47,6 +54,10 @@ public class Task {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public void setEstimation(int estimation) {
+        this.estimation = estimation;
     }
 
     @Override
@@ -66,7 +77,8 @@ public class Task {
         String title = rs.getString("title");
         String description = rs.getString("description");
         int status = rs.getInt("status");
+        int estimation = rs.getInt("estimation");
 
-        return new Task(id, title, description, TaskStatus.fromInteger(status));
+        return new Task(id, title, description, estimation, TaskStatus.fromInteger(status));
     }
 }

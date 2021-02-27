@@ -60,6 +60,7 @@ public class DbManager {
                     "title"	TEXT,
                     "description"	TEXT,
                     "status"	INTEGER,
+                    "estimation"	INTEGER,
                     PRIMARY KEY("id" AUTOINCREMENT)
                 )
                 """;

@@ -24,6 +24,9 @@
             <Text>Description:</Text>
             <TextArea fx:id="newTaskDescription"/>
 
+            <Text>Estimation (hours):</Text>
+            <TextField fx:id="newTaskEstimation"/>
+
             <VBox alignment="CENTER">
                 <Button onAction="#addTask">Add</Button>
             </VBox>
@@ -43,6 +46,9 @@
 
         <Text>Status:</Text>
         <ComboBox fx:id="taskDetailStatus" disable="true"/>
+
+        <Text>Estimation (hours):</Text>
+        <TextField fx:id="taskDetailEstimation" disable="true"/>
 
         <HBox alignment="TOP_CENTER" styleClass="box">
             <Button fx:id="startTaskEditingButton" onAction="#startTaskEditing">Edit</Button>
