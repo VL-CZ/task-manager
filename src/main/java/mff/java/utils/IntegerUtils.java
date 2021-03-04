@@ -1,6 +1,6 @@
-package mff.java;
+package mff.java.utils;
 
-public class IntegerHelpers {
+public class IntegerUtils {
     /**
      * try to get int from @text
      * @param text given text
