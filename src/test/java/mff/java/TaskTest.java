@@ -1,4 +1,4 @@
-package task;
+package mff.java;
 
 import mff.java.models.Task;
 import mff.java.models.TaskStatus;
