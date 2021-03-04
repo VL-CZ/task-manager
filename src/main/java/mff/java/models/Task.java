@@ -62,7 +62,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return id + ": " + title;
+        return "#" + id + ": " + title;
     }
 
     /**

@@ -198,7 +198,14 @@ public class MainPageController implements Initializable {
         taskToUpdate.setStatus(taskDetailStatus.getValue());
         taskToUpdate.setEstimation(estimation);
 
-        taskRepository.update(taskToUpdate);
+        // if the status is set to "completed", delete it
+        if (taskToUpdate.getStatus() == TaskStatus.Completed) {
+            taskRepository.delete(taskToUpdate);
+            detailsVBox.setVisible(false);
+        }
+        else {
+            taskRepository.update(taskToUpdate);
+        }
 
         reloadTasks();
     }
