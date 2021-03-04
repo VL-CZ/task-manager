@@ -7,15 +7,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskRepository implements ITaskRepository {
-
-    /**
-     * connection to the database
-     */
-    private final DbManager dbManager;
+public class TaskRepository extends BaseRepository<Task> implements ITaskRepository {
 
     public TaskRepository(DbManager dbManager) {
-        this.dbManager = dbManager;
+        super(dbManager);
     }
 
     /**
@@ -44,10 +39,10 @@ public class TaskRepository implements ITaskRepository {
      * {@inheritDoc}
      */
     @Override
-    public void delete(Task task) {
+    public void delete(Task item) {
         try (var dbConnection = dbManager.getConnection()) {
             PreparedStatement statement = dbConnection.prepareStatement("delete from tasks where id=?");
-            statement.setInt(1, task.getId());
+            statement.setInt(1, item.getId());
             statement.execute();
         }
         catch (SQLException throwables) {
@@ -59,15 +54,15 @@ public class TaskRepository implements ITaskRepository {
      * {@inheritDoc}
      */
     @Override
-    public void update(Task task) {
+    public void update(Task item) {
         try (var dbConnection = dbManager.getConnection()) {
             PreparedStatement statement = dbConnection.prepareStatement("update tasks set title=?, description=?, status=?, estimation=? where id=?");
-            statement.setString(1, task.getTitle());
-            statement.setString(2, task.getDescription());
-            statement.setInt(3, task.getStatus().ordinal());
-            statement.setInt(4, task.getEstimation());
+            statement.setString(1, item.getTitle());
+            statement.setString(2, item.getDescription());
+            statement.setInt(3, item.getStatus().ordinal());
+            statement.setInt(4, item.getEstimation());
 
-            statement.setInt(5, task.getId());
+            statement.setInt(5, item.getId());
             statement.execute();
         }
         catch (SQLException throwables) {
@@ -79,13 +74,13 @@ public class TaskRepository implements ITaskRepository {
      * {@inheritDoc}
      */
     @Override
-    public void add(Task task) {
+    public void add(Task item) {
         try (var dbConnection = dbManager.getConnection()) {
             PreparedStatement statement = dbConnection.prepareStatement("insert into tasks(title, description, status, estimation) values (?,?,?,?)");
-            statement.setString(1, task.getTitle());
-            statement.setString(2, task.getDescription());
-            statement.setInt(3, task.getStatus().ordinal());
-            statement.setInt(4, task.getEstimation());
+            statement.setString(1, item.getTitle());
+            statement.setString(2, item.getDescription());
+            statement.setInt(3, item.getStatus().ordinal());
+            statement.setInt(4, item.getEstimation());
             statement.execute();
         }
         catch (SQLException throwables) {

@@ -4,28 +4,10 @@ import mff.java.models.Task;
 
 import java.util.List;
 
-public interface ITaskRepository {
+public interface ITaskRepository extends IRepository<Task> {
     /**
-     * get all tasks
-     * @return
+     * update properties of the given item
+     * @param item item to update
      */
-    List<Task> getAll();
-
-    /**
-     * delete the given task
-     * @param task
-     */
-    void delete(Task task);
-
-    /**
-     * update properties of the given task
-     * @param task
-     */
-    void update(Task task);
-
-    /**
-     * add new task
-     * @param task
-     */
-    void add(Task task);
+    void update(Task item);
 }
