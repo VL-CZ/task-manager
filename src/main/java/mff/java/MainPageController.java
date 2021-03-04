@@ -13,6 +13,7 @@ import mff.java.models.Task;
 import mff.java.models.TaskStatus;
 import mff.java.repositories.ITaskRepository;
 import mff.java.repositories.TaskRepository;
+import mff.java.utils.IntegerUtils;
 
 import java.net.URL;
 import java.util.Optional;
@@ -191,7 +192,7 @@ public class MainPageController implements Initializable {
 
         cancelTaskEditing();
 
-        int estimation = IntegerHelpers.tryGetInt(taskDetailEstimation.getText(), taskToUpdate.getEstimation());
+        int estimation = IntegerUtils.tryGetInt(taskDetailEstimation.getText(), taskToUpdate.getEstimation());
 
         taskToUpdate.setTitle(taskDetailTitle.getText());
         taskToUpdate.setDescription(taskDetailDescription.getText());
