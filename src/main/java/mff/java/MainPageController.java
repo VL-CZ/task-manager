@@ -338,16 +338,9 @@ public class MainPageController implements Initializable {
      * @param canEdit can user edit the inputs?
      */
     private void setEditButtonsVisibility(boolean canEdit) {
-        if (canEdit) {
-            startTaskEditingButton.setVisible(false);
-            confirmTaskEditingButton.setVisible(true);
-            cancelTaskEditingButton.setVisible(true);
-        }
-        else {
-            startTaskEditingButton.setVisible(true);
-            confirmTaskEditingButton.setVisible(false);
-            cancelTaskEditingButton.setVisible(false);
-        }
+        startTaskEditingButton.setVisible(!canEdit);
+        confirmTaskEditingButton.setVisible(canEdit);
+        cancelTaskEditingButton.setVisible(canEdit);
     }
 
     private void loadTaskDependencies(Task task) {
