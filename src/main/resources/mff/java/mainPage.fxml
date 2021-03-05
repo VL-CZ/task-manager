@@ -50,6 +50,8 @@
         <Text>Estimation (hours):</Text>
         <TextField fx:id="taskDetailEstimation" disable="true"/>
 
+        <ListView fx:id="taskDetailDependencies"/>
+
         <HBox alignment="TOP_CENTER" styleClass="box">
             <Button fx:id="startTaskEditingButton" onAction="#startTaskEditing">Edit</Button>
             <Button fx:id="confirmTaskEditingButton" onAction="#updateTask" visible="false">OK</Button>

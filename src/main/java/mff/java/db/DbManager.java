@@ -1,6 +1,7 @@
 package mff.java.db;
 
 import mff.java.utils.PathUtils;
+import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,9 @@ public class DbManager {
      * @throws SQLException
      */
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:" + databaseFileName);
+        SQLiteConfig dbConfig = new SQLiteConfig();
+        dbConfig.enforceForeignKeys(true);
+        return DriverManager.getConnection("jdbc:sqlite:" + databaseFileName, dbConfig.toProperties());
     }
 
     /**

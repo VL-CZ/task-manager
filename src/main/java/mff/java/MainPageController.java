@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
+import mff.java.models.TaskDependency;
 import mff.java.models.TaskStatus;
 import mff.java.repositories.ITaskDependencyRepository;
 import mff.java.repositories.ITaskRepository;
@@ -37,6 +38,11 @@ public class MainPageController implements Initializable {
      * list of tasks
      */
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
+
+    /**
+     * list of currently displayed task (task detail) dependencies
+     */
+    private final ObservableList<TaskDependency> currentTaskDependencies = FXCollections.observableArrayList();
 
     /**
      * observable list of all
@@ -125,6 +131,12 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private Button confirmTaskEditingButton;
+
+    /**
+     * listview with task dependencies
+     */
+    @FXML
+    private ListView<TaskDependency> taskDetailDependencies;
 
     /**
      * add new task to the list
@@ -273,6 +285,9 @@ public class MainPageController implements Initializable {
         var estimationText = ((Integer) task.getEstimation()).toString();
         taskDetailEstimation.setText(estimationText);
 
+        loadTaskDependencies(task);
+        taskDetailDependencies.setItems(currentTaskDependencies);
+
         detailsVBox.setVisible(true);
     }
 
@@ -333,5 +348,10 @@ public class MainPageController implements Initializable {
             confirmTaskEditingButton.setVisible(false);
             cancelTaskEditingButton.setVisible(false);
         }
+    }
+
+    private void loadTaskDependencies(Task task) {
+        currentTaskDependencies.clear();
+        currentTaskDependencies.addAll(taskDependencyRepository.getDependeciesOfTask(task));
     }
 }
