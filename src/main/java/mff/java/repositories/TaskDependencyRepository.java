@@ -1,7 +1,6 @@
 package mff.java.repositories;
 
 import mff.java.db.DbManager;
-import mff.java.models.Task;
 import mff.java.models.TaskDependency;
 
 import java.sql.PreparedStatement;
@@ -13,7 +12,7 @@ import java.util.List;
 
 public class TaskDependencyRepository extends BaseRepository<TaskDependency> implements ITaskDependencyRepository {
 
-    protected TaskDependencyRepository(DbManager dbManager) {
+    public TaskDependencyRepository(DbManager dbManager) {
         super(dbManager);
     }
 

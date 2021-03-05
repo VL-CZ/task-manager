@@ -11,7 +11,9 @@ import javafx.scene.text.Text;
 import mff.java.db.DbManager;
 import mff.java.models.Task;
 import mff.java.models.TaskStatus;
+import mff.java.repositories.ITaskDependencyRepository;
 import mff.java.repositories.ITaskRepository;
+import mff.java.repositories.TaskDependencyRepository;
 import mff.java.repositories.TaskRepository;
 import mff.java.utils.IntegerUtils;
 
@@ -25,6 +27,11 @@ public class MainPageController implements Initializable {
      * Task repository
      */
     private ITaskRepository taskRepository;
+
+    /**
+     * TaskDependency repository
+     */
+    private ITaskDependencyRepository taskDependencyRepository;
 
     /**
      * list of tasks
@@ -221,7 +228,9 @@ public class MainPageController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         var dbManager = new DbManager();
         dbManager.initialize();
+
         taskRepository = new TaskRepository(dbManager);
+        taskDependencyRepository = new TaskDependencyRepository(dbManager);
 
         reloadTasks();
         taskList.setItems(tasks);
