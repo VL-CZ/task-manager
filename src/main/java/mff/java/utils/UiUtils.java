@@ -8,7 +8,7 @@ import javafx.scene.control.TextField;
 import java.util.Optional;
 
 /**
- * class with UI Utils
+ * class with additional UI methods
  */
 public class UiUtils {
     /**
@@ -38,6 +38,25 @@ public class UiUtils {
     }
 
     /**
+     * show a dialog
+     *
+     * @param alertType   type of the dialog
+     * @param title       title of the dialog
+     * @param headerText  header text of the dialog
+     * @param contentText content of the dialog
+     * @return result of dialog (whether it was confirmed or not)
+     */
+    public static Optional<ButtonType> showDialog(Alert.AlertType alertType, String title, String headerText, String contentText) {
+        Alert alert = new Alert(alertType);
+
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+
+        return alert.showAndWait();
+    }
+
+    /**
      * Show delete action confirmation dialog
      *
      * @param title      dialog title
@@ -45,13 +64,17 @@ public class UiUtils {
      * @return result of dialog (whether it was confirmed or not)
      */
     public static Optional<ButtonType> showDeleteConfirmation(String title, String headerText) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        String contentText = "This action can't be undone!";
+        return showDialog(Alert.AlertType.CONFIRMATION, title, headerText, "This action can't be undone!");
+    }
 
-        alert.setTitle(title);
-        alert.setHeaderText(headerText);
-        alert.setContentText(contentText);
-
-        return alert.showAndWait();
+    /**
+     * Show error dialog
+     *
+     * @param title      dialog title
+     * @param headerText dialog header text
+     * @return result of dialog (whether it was confirmed or not)
+     */
+    public static Optional<ButtonType> showErrorDialog(String title, String headerText) {
+        return showDialog(Alert.AlertType.ERROR, title, headerText, "Click OK to close this dialog");
     }
 }

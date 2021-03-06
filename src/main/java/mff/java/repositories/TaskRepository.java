@@ -32,7 +32,7 @@ public class TaskRepository extends BaseRepository<Task> implements ITaskReposit
         catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**

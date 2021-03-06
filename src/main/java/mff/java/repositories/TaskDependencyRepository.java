@@ -28,7 +28,7 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
         catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -73,7 +73,7 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
         catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**

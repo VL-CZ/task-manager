@@ -25,7 +25,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class MainPageController implements Initializable {
 
@@ -165,9 +164,7 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void addTask() {
-        int estimation = Integer.parseInt(newTaskEstimation.getText());
-
-        // TO-DO check if not null
+        int estimation = IntegerUtils.tryGetInt(newTaskEstimation.getText(), 0);
 
         var task = new Task(0, newTaskTitle.getText(), newTaskDescription.getText(), estimation);
         taskRepository.add(task);
@@ -188,7 +185,6 @@ public class MainPageController implements Initializable {
         var taskToRemove = UiUtils.getSelectedFromListView(taskList);
 
         if (taskToRemove == null) {
-            // TO-DO show error
             return;
         }
 
@@ -457,6 +453,7 @@ public class MainPageController implements Initializable {
             // rollback
             currentTaskDependencies.removeAll(dependenciesToAdd);
 
+            UiUtils.showErrorDialog("Error", "Cannot add these dependencies. Cyclic dependency detected.");
         }
     }
 }
