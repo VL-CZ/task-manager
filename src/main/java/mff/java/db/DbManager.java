@@ -71,10 +71,13 @@ public class DbManager {
      */
     private void tryToCreateTables() throws SQLException, URISyntaxException, IOException {
         String createTablesSql = Files.readString(getSqlScriptPath());
+        var sqlCommands = createTablesSql.split(";");
 
         try (var connection = getConnection()) {
-            var statement = connection.createStatement();
-            statement.execute(createTablesSql);
+            for (String sqlCommand : sqlCommands) {
+                var statement = connection.createStatement();
+                statement.execute(sqlCommand);
+            }
         }
     }
 

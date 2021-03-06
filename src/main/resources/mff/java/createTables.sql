@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS "tasks"
     "estimation"  INTEGER NOT NULL,
     PRIMARY KEY ("id" AUTOINCREMENT)
 );
-
 CREATE TABLE IF NOT EXISTS "taskDependencies"
 (
     "id"        INTEGER NOT NULL UNIQUE,
@@ -17,4 +16,4 @@ CREATE TABLE IF NOT EXISTS "taskDependencies"
     PRIMARY KEY ("id" AUTOINCREMENT),
     FOREIGN KEY ("dependsOn") REFERENCES "tasks" ("id") ON DELETE CASCADE,
     FOREIGN KEY ("taskId") REFERENCES "tasks" ("id") ON DELETE CASCADE
-);
+)
