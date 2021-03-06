@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import mff.java.db.DbManager;
@@ -45,7 +46,7 @@ public class MainPageController implements Initializable {
     private final ObservableList<TaskDependency> currentTaskDependencies = FXCollections.observableArrayList();
 
     /**
-     * observable list of all
+     * observable list of all task statuses
      */
     private final ObservableList<TaskStatus> allTasksStatuses = FXCollections.observableArrayList(TaskStatus.values());
 
@@ -53,6 +54,11 @@ public class MainPageController implements Initializable {
      * task detail headline template
      */
     private static final String taskDetailTemplate = "Task #%d detail";
+
+    /**
+     * currently selected task in details box
+     */
+    private Task currentTask;
 
     /**
      * ListView control with all tasks (bound to {@link #tasks})
@@ -137,6 +143,18 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private ListView<TaskDependency> taskDetailDependencies;
+
+    /**
+     * HBox with buttons for editing dependencies
+     */
+    @FXML
+    private VBox dependenciesListButtons;
+
+    /**
+     * status of the currently selected task
+     */
+    @FXML
+    private ComboBox<Task> addDependencyComboBox;
 
     /**
      * add new task to the list
@@ -259,6 +277,16 @@ public class MainPageController implements Initializable {
         }
     }
 
+
+    @FXML
+    private void addDependency() {
+        var dependsOn = addDependencyComboBox.getValue();
+        var newDependency = new TaskDependency(0, currentTask.getId(), dependsOn.getId());
+
+        taskDependencyRepository.add(newDependency);
+        currentTaskDependencies.add(newDependency);
+    }
+
     /**
      * initialize the component
      *
@@ -302,6 +330,7 @@ public class MainPageController implements Initializable {
      * @param task task to show
      */
     private void showTaskDetails(Task task) {
+        currentTask = task;
         String taskHeadline = String.format(taskDetailTemplate, task.getId());
 
         taskDetailHeadline.setText(taskHeadline);
@@ -316,6 +345,8 @@ public class MainPageController implements Initializable {
 
         loadTaskDependencies(task);
         taskDetailDependencies.setItems(currentTaskDependencies);
+
+        addDependencyComboBox.setItems(tasks);
 
         detailsVBox.setVisible(true);
     }
@@ -362,12 +393,15 @@ public class MainPageController implements Initializable {
      */
     private void setEditButtonsVisibility(boolean canEdit) {
         startTaskEditingButton.setVisible(!canEdit);
-        confirmTaskEditingButton.setVisible(canEdit);
-        cancelTaskEditingButton.setVisible(canEdit);
+        var editControls = new Node[]{confirmTaskEditingButton, cancelTaskEditingButton, dependenciesListButtons};
+        for (var control : editControls) {
+            control.setVisible(canEdit);
+        }
     }
 
     /**
      * add dependencies of the given task to {@link #currentTaskDependencies} collection
+     *
      * @param task task that we gather dependencies for
      */
     private void loadTaskDependencies(Task task) {
@@ -377,7 +411,8 @@ public class MainPageController implements Initializable {
 
     /**
      * Show delete action confirmation dialog
-     * @param title dialog title
+     *
+     * @param title      dialog title
      * @param headerText dialog header text
      * @return result of dialog (whether it was confirmed or not)
      */

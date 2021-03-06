@@ -47,7 +47,7 @@ public class TaskDependencyGraph {
     /**
      * map of graph nodes
      * <br>
-     * nodes[i] contains {@link Node} instance with id=i
+     * <code>nodes[i]</code> contains {@link Node} instance with id=i
      */
     private final Map<Integer, Node> nodes;
 
@@ -74,8 +74,12 @@ public class TaskDependencyGraph {
 
     /**
      * order tasks according to their dependencies
+     * <br>
+     * e.g. get order in which we should complete the tasks
+     * <br>
+     * if there are mutiple options, return any of them
      *
-     * @return array of task IDs
+     * @return array of task IDs in incerasing order according to dependencies
      */
     public int[] getOrdering() {
         // if cached, return id

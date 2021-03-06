@@ -54,7 +54,7 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
         try (var dbConnection = dbManager.getConnection()) {
             PreparedStatement statement = dbConnection.prepareStatement("insert into taskDependencies(taskId, dependsOn) values (?,?)");
             statement.setInt(1, item.getTaskId());
-            statement.setInt(1, item.getDependsOnTaskId());
+            statement.setInt(2, item.getDependsOnTaskId());
             statement.execute();
         }
         catch (SQLException throwables) {
