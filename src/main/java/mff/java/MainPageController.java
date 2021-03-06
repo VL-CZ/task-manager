@@ -6,10 +6,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import mff.java.db.DbManager;
+import mff.java.exceptions.CyclicDependencyException;
 import mff.java.models.Task;
 import mff.java.models.TaskDependency;
 import mff.java.models.TaskStatus;
@@ -20,6 +22,8 @@ import mff.java.repositories.TaskRepository;
 import mff.java.utils.IntegerUtils;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -59,6 +63,11 @@ public class MainPageController implements Initializable {
      * currently selected task in details box
      */
     private Task currentTask;
+
+    /**
+     * list of dependencies to add
+     */
+    private List<TaskDependency> dependenciesToAdd;
 
     /**
      * ListView control with all tasks (bound to {@link #tasks})
@@ -148,7 +157,7 @@ public class MainPageController implements Initializable {
      * HBox with buttons for editing dependencies
      */
     @FXML
-    private VBox dependenciesListButtons;
+    private GridPane dependenciesListButtons;
 
     /**
      * status of the currently selected task
@@ -233,6 +242,8 @@ public class MainPageController implements Initializable {
         taskToUpdate.setStatus(taskDetailStatus.getValue());
         taskToUpdate.setEstimation(estimation);
 
+        updateDependencies();
+
         // if the status is set to "completed", delete it
         if (taskToUpdate.getStatus() == TaskStatus.Completed) {
             taskRepository.delete(taskToUpdate);
@@ -277,13 +288,12 @@ public class MainPageController implements Initializable {
         }
     }
 
-
     @FXML
     private void addDependency() {
         var dependsOn = addDependencyComboBox.getValue();
         var newDependency = new TaskDependency(0, currentTask.getId(), dependsOn.getId());
 
-        taskDependencyRepository.add(newDependency);
+        dependenciesToAdd.add(newDependency);
         currentTaskDependencies.add(newDependency);
     }
 
@@ -345,6 +355,7 @@ public class MainPageController implements Initializable {
 
         loadTaskDependencies(task);
         taskDetailDependencies.setItems(currentTaskDependencies);
+        dependenciesToAdd = new ArrayList<>();
 
         addDependencyComboBox.setItems(tasks);
 
@@ -423,5 +434,28 @@ public class MainPageController implements Initializable {
         alert.setContentText("This action can't be undone!");
 
         return alert.showAndWait();
+    }
+
+    private void updateDependencies() {
+        // no dependencies to add
+        if (dependenciesToAdd.size() == 0)
+            return;
+
+        var allDependencies = taskDependencyRepository.getAll();
+        allDependencies.addAll(dependenciesToAdd);
+
+        try {
+            var taskDependencyGraph = new TaskDependencyGraph(allDependencies);
+            taskDependencyGraph.getOrdering();
+
+            for (var dependency : dependenciesToAdd) {
+                taskDependencyRepository.add(dependency);
+            }
+        }
+        catch (CyclicDependencyException exception) {
+
+            // rollback
+            currentTaskDependencies.removeAll(dependenciesToAdd);
+        }
     }
 }

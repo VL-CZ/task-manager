@@ -53,13 +53,13 @@
         <TextField fx:id="taskDetailEstimation" disable="true"/>
 
         <Text>Depends on:</Text>
-        <HBox styleClass="box" spacing="10" style="-fx-background-color: red">
-            <ListView fx:id="taskDetailDependencies" maxHeight="150"/>
-            <VBox alignment="TOP_CENTER" visible="false" fx:id="dependenciesListButtons" spacing="10">
-                <ComboBox fx:id="addDependencyComboBox"/>
-                <Button onAction="#addDependency">Add</Button>
-                <Button onAction="#deleteDependency">Delete</Button>
-            </VBox>
+        <HBox styleClass="box" alignment="TOP_CENTER">
+            <ListView fx:id="taskDetailDependencies" maxHeight="150" minWidth="300"/>
+            <GridPane fx:id="dependenciesListButtons" visible="false" >
+                <ComboBox fx:id="addDependencyComboBox" />
+                <Button onAction="#addDependency" GridPane.columnIndex="1">Add</Button>
+                <Button onAction="#deleteDependency" GridPane.rowIndex="1">Delete</Button>
+            </GridPane>
         </HBox>
 
         <HBox alignment="TOP_CENTER" styleClass="box">
