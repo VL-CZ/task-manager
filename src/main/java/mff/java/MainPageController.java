@@ -163,19 +163,16 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void removeTask() {
-        var taskToRemove = getSelectedFromTaskList();
+        var taskToRemove = getSelectedFromListView(taskList);
 
         if (taskToRemove == null) {
             // TO-DO show error
             return;
         }
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Delete a task");
-        alert.setHeaderText("Do you really want to delete the task " + taskToRemove.getTitle() + " ?");
-        alert.setContentText("This action can't be undone!");
-
-        Optional<ButtonType> result = alert.showAndWait();
+        var result = showDeleteConfirmation("Delete a task",
+                "Do you really want to delete the task " + taskToRemove.getTitle() + " ?"
+        );
 
         // OK clicked
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -207,7 +204,7 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void updateTask() {
-        var taskToUpdate = getSelectedFromTaskList();
+        var taskToUpdate = getSelectedFromListView(taskList);
 
         cancelTaskEditing();
 
@@ -228,6 +225,38 @@ public class MainPageController implements Initializable {
         }
 
         reloadTasks();
+    }
+
+    /**
+     * reload tasks from the DB (replace current collection by the data from database)
+     */
+    @FXML
+    private void reloadTasks() {
+        tasks.clear();
+        tasks.addAll(taskRepository.getAll());
+    }
+
+    /**
+     * delete selected dependency from {@link #taskDetailDependencies} ListView
+     */
+    @FXML
+    private void deleteDependency() {
+        var dependencyToRemove = getSelectedFromListView(taskDetailDependencies);
+
+        if (dependencyToRemove == null) {
+            return;
+        }
+
+        var result = showDeleteConfirmation("Delete a task dependency",
+                "Do you really want to delete the dependency: #" +
+                        dependencyToRemove.getTaskId() + " depends on #" + dependencyToRemove.getDependsOnTaskId() + " ?"
+        );
+
+        // OK clicked
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            currentTaskDependencies.remove(dependencyToRemove);
+            taskDependencyRepository.delete(dependencyToRemove);
+        }
     }
 
     /**
@@ -292,20 +321,14 @@ public class MainPageController implements Initializable {
     }
 
     /**
-     * reload tasks from the DB (replace current collection by the data from database)
-     */
-    private void reloadTasks() {
-        tasks.clear();
-        tasks.addAll(taskRepository.getAll());
-    }
-
-    /**
-     * get selected task from {@link #taskList} listview
+     * get selected item from listView
      *
-     * @return selected task
+     * @param listView given {@link ListView} control
+     * @param <T>      type of item
+     * @return selected item
      */
-    private Task getSelectedFromTaskList() {
-        return taskList.getSelectionModel().getSelectedItem();
+    private <T> T getSelectedFromListView(ListView<T> listView) {
+        return listView.getSelectionModel().getSelectedItem();
     }
 
     /**
@@ -343,8 +366,27 @@ public class MainPageController implements Initializable {
         cancelTaskEditingButton.setVisible(canEdit);
     }
 
+    /**
+     * add dependencies of the given task to {@link #currentTaskDependencies} collection
+     * @param task task that we gather dependencies for
+     */
     private void loadTaskDependencies(Task task) {
         currentTaskDependencies.clear();
         currentTaskDependencies.addAll(taskDependencyRepository.getDependeciesOfTask(task));
+    }
+
+    /**
+     * Show delete action confirmation dialog
+     * @param title dialog title
+     * @param headerText dialog header text
+     * @return result of dialog (whether it was confirmed or not)
+     */
+    private Optional<ButtonType> showDeleteConfirmation(String title, String headerText) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText("This action can't be undone!");
+
+        return alert.showAndWait();
     }
 }

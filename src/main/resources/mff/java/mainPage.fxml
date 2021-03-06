@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<GridPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+<GridPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
           fx:controller="mff.java.MainPageController" stylesheets="@styles.css">
     <VBox alignment="TOP_CENTER" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" styleClass="box">
 
@@ -11,7 +11,9 @@
 
         <ListView fx:id="taskList"/>
 
-        <HBox alignment="CENTER" styleClass="box">
+        <HBox alignment="CENTER" styleClass="box" spacing="5">
+            <Button onAction="#reloadTasks">Sort by ID</Button>
+            <Button onAction="#reloadTasks">Sort by dependencies</Button>
             <Button onAction="#removeTask">Delete</Button>
         </HBox>
         <VBox styleClass="box, bordered-box">
@@ -50,7 +52,12 @@
         <Text>Estimation (hours):</Text>
         <TextField fx:id="taskDetailEstimation" disable="true"/>
 
-        <ListView fx:id="taskDetailDependencies"/>
+        <Text>Depends on:</Text>
+        <ListView fx:id="taskDetailDependencies" maxHeight="150"/>
+        <HBox alignment="TOP_CENTER">
+            <Button>Add</Button>
+            <Button onAction="#deleteDependency">Delete</Button>
+        </HBox>
 
         <HBox alignment="TOP_CENTER" styleClass="box">
             <Button fx:id="startTaskEditingButton" onAction="#startTaskEditing">Edit</Button>
