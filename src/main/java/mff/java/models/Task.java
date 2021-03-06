@@ -65,6 +65,11 @@ public class Task {
         return "#" + id + ": " + title;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Task) && ((Task) obj).getId() == getId();
+    }
+
     /**
      * create new task from ResultSet
      *

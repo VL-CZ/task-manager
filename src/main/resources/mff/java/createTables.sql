@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS "tasks"
     "id"          INTEGER NOT NULL UNIQUE,
     "title"       TEXT,
     "description" TEXT,
-    "status"      INTEGER,
-    "estimation"  INTEGER,
+    "status"      INTEGER NOT NULL,
+    "estimation"  INTEGER NOT NULL,
     PRIMARY KEY ("id" AUTOINCREMENT)
 );
 

@@ -32,7 +32,7 @@ public class TaskRepository extends BaseRepository<Task> implements ITaskReposit
         catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -68,6 +68,27 @@ public class TaskRepository extends BaseRepository<Task> implements ITaskReposit
         catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Task getById(int id) {
+        Task task = null;
+        try (var dbConnection = dbManager.getConnection()) {
+            PreparedStatement statement = dbConnection.prepareStatement("select * from tasks where id=?");
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                task = Task.fromResultSet(rs);
+            }
+            return task;
+        }
+        catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
     }
 
     /**

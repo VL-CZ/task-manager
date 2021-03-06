@@ -6,17 +6,24 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import mff.java.db.DbManager;
+import mff.java.exceptions.CyclicDependencyException;
 import mff.java.models.Task;
+import mff.java.models.TaskDependency;
 import mff.java.models.TaskStatus;
+import mff.java.repositories.ITaskDependencyRepository;
 import mff.java.repositories.ITaskRepository;
+import mff.java.repositories.TaskDependencyRepository;
 import mff.java.repositories.TaskRepository;
 import mff.java.utils.IntegerUtils;
+import mff.java.utils.UiUtils;
 
 import java.net.URL;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainPageController implements Initializable {
@@ -27,12 +34,22 @@ public class MainPageController implements Initializable {
     private ITaskRepository taskRepository;
 
     /**
+     * TaskDependency repository
+     */
+    private ITaskDependencyRepository taskDependencyRepository;
+
+    /**
      * list of tasks
      */
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
 
     /**
-     * observable list of all
+     * list of currently displayed task (task detail) dependencies
+     */
+    private final ObservableList<TaskDependency> currentTaskDependencies = FXCollections.observableArrayList();
+
+    /**
+     * observable list of all task statuses
      */
     private final ObservableList<TaskStatus> allTasksStatuses = FXCollections.observableArrayList(TaskStatus.values());
 
@@ -40,6 +57,11 @@ public class MainPageController implements Initializable {
      * task detail headline template
      */
     private static final String taskDetailTemplate = "Task #%d detail";
+
+    /**
+     * list of dependencies to add
+     */
+    private List<TaskDependency> dependenciesToAdd;
 
     /**
      * ListView control with all tasks (bound to {@link #tasks})
@@ -120,13 +142,29 @@ public class MainPageController implements Initializable {
     private Button confirmTaskEditingButton;
 
     /**
+     * listview with task dependencies
+     */
+    @FXML
+    private ListView<TaskDependency> taskDetailDependencies;
+
+    /**
+     * HBox with buttons for editing dependencies
+     */
+    @FXML
+    private GridPane dependenciesListButtons;
+
+    /**
+     * status of the currently selected task
+     */
+    @FXML
+    private ComboBox<Task> addDependencyComboBox;
+
+    /**
      * add new task to the list
      */
     @FXML
     private void addTask() {
-        int estimation = Integer.parseInt(newTaskEstimation.getText());
-
-        // TO-DO check if not null
+        int estimation = IntegerUtils.tryGetInt(newTaskEstimation.getText(), 0);
 
         var task = new Task(0, newTaskTitle.getText(), newTaskDescription.getText(), estimation);
         taskRepository.add(task);
@@ -144,19 +182,15 @@ public class MainPageController implements Initializable {
      */
     @FXML
     private void removeTask() {
-        var taskToRemove = getSelectedFromTaskList();
+        var taskToRemove = UiUtils.getSelectedFromListView(taskList);
 
         if (taskToRemove == null) {
-            // TO-DO show error
             return;
         }
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Delete a task");
-        alert.setHeaderText("Do you really want to delete the task " + taskToRemove.getTitle() + " ?");
-        alert.setContentText("This action can't be undone!");
-
-        Optional<ButtonType> result = alert.showAndWait();
+        var result = UiUtils.showDeleteConfirmation("Delete a task",
+                "Do you really want to delete the task " + taskToRemove + " ?"
+        );
 
         // OK clicked
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -184,11 +218,11 @@ public class MainPageController implements Initializable {
     }
 
     /**
-     * update currently selected task in {@link #taskList} listview
+     * confirm update of the currently selected task in {@link #taskList} listview
      */
     @FXML
     private void updateTask() {
-        var taskToUpdate = getSelectedFromTaskList();
+        var taskToUpdate = UiUtils.getSelectedFromListView(taskList);
 
         cancelTaskEditing();
 
@@ -199,16 +233,104 @@ public class MainPageController implements Initializable {
         taskToUpdate.setStatus(taskDetailStatus.getValue());
         taskToUpdate.setEstimation(estimation);
 
+        updateDependencies();
+
         // if the status is set to "completed", delete it
         if (taskToUpdate.getStatus() == TaskStatus.Completed) {
-            taskRepository.delete(taskToUpdate);
-            detailsVBox.setVisible(false);
+            String headerText = "Do you really want to complete the task %s ?";
+            if (currentTaskDependencies.size() > 0)
+                headerText += "\nThis task has incomplete dependencies!";
+
+            var confirmationResult = UiUtils.showDeleteConfirmation("Complete a task",
+                    String.format(headerText, taskToUpdate)
+            );
+
+            // OK clicked
+            if (confirmationResult.isPresent() && confirmationResult.get() == ButtonType.OK) {
+                taskRepository.delete(taskToUpdate);
+                detailsVBox.setVisible(false);
+            }
         }
         else {
             taskRepository.update(taskToUpdate);
         }
 
         reloadTasks();
+    }
+
+    /**
+     * reload tasks from the DB (replace current collection by the data from database)
+     */
+    @FXML
+    private void reloadTasks() {
+        tasks.clear();
+        tasks.addAll(taskRepository.getAll());
+    }
+
+    /**
+     * order tasks by dependencies
+     * <br>
+     * if there are multiple possible order, choose any of them
+     */
+    @FXML
+    private void orderByDependencies() {
+        var taskDependencyGraph = new TaskDependencyGraph(taskDependencyRepository.getAll());
+        var orderedIds = taskDependencyGraph.getOrdering();
+        var orderedTasks = new ArrayList<Task>();
+
+        for (int taskId : orderedIds) {
+            var task = taskRepository.getById(taskId);
+            orderedTasks.add(task);
+        }
+
+        for (var task : taskRepository.getAll()) {
+            if (!orderedTasks.contains(task)) {
+                orderedTasks.add(task);
+            }
+        }
+
+        tasks.clear();
+        tasks.addAll(orderedTasks);
+    }
+
+    /**
+     * delete selected dependency from {@link #taskDetailDependencies} ListView
+     */
+    @FXML
+    private void deleteDependency() {
+        var dependencyToRemove = UiUtils.getSelectedFromListView(taskDetailDependencies);
+
+        if (dependencyToRemove == null) {
+            return;
+        }
+
+        var result = UiUtils.showDeleteConfirmation("Delete a task dependency",
+                "Do you really want to delete the dependency: #" +
+                        dependencyToRemove.getTaskId() + " depends on #" + dependencyToRemove.getDependsOnTaskId() + " ?"
+        );
+
+        // OK clicked
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            currentTaskDependencies.remove(dependencyToRemove);
+            taskDependencyRepository.delete(dependencyToRemove);
+        }
+    }
+
+    /**
+     * add selected dependency from {@link #dependenciesToAdd} Combobox to this task
+     */
+    @FXML
+    private void addDependency() {
+        var currentTask = UiUtils.getSelectedFromListView(taskList);
+        var dependsOn = addDependencyComboBox.getValue();
+
+        if (currentTask == null || dependsOn == null)
+            return;
+
+        var newDependency = new TaskDependency(0, currentTask.getId(), dependsOn.getId());
+
+        dependenciesToAdd.add(newDependency);
+        currentTaskDependencies.add(newDependency);
     }
 
     /**
@@ -221,29 +343,16 @@ public class MainPageController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         var dbManager = new DbManager();
         dbManager.initialize();
+
         taskRepository = new TaskRepository(dbManager);
+        taskDependencyRepository = new TaskDependencyRepository(dbManager);
 
         reloadTasks();
         taskList.setItems(tasks);
         setTaskListOnChangeHandler();
 
-        setNumericContent(newTaskEstimation);
-        setNumericContent(taskDetailEstimation);
-    }
-
-    /**
-     * set that given textField can have only positive numeric values
-     *
-     * @param textField given TextField control
-     */
-    private void setNumericContent(TextField textField) {
-        textField.setText("");
-        textField.textProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (!newValue.matches("^[0-9]{0,5}$")) {
-                        newTaskEstimation.setText(oldValue);
-                    }
-                });
+        UiUtils.setPositiveIntegerContent(newTaskEstimation);
+        UiUtils.setPositiveIntegerContent(taskDetailEstimation);
     }
 
     /**
@@ -264,24 +373,13 @@ public class MainPageController implements Initializable {
         var estimationText = ((Integer) task.getEstimation()).toString();
         taskDetailEstimation.setText(estimationText);
 
+        loadTaskDependencies(task);
+        taskDetailDependencies.setItems(currentTaskDependencies);
+        dependenciesToAdd = new ArrayList<>();
+
+        addDependencyComboBox.setItems(tasks);
+
         detailsVBox.setVisible(true);
-    }
-
-    /**
-     * reload tasks from the DB (replace current collection by the data from database)
-     */
-    private void reloadTasks() {
-        tasks.clear();
-        tasks.addAll(taskRepository.getAll());
-    }
-
-    /**
-     * get selected task from {@link #taskList} listview
-     *
-     * @return selected task
-     */
-    private Task getSelectedFromTaskList() {
-        return taskList.getSelectionModel().getSelectedItem();
     }
 
     /**
@@ -314,15 +412,48 @@ public class MainPageController implements Initializable {
      * @param canEdit can user edit the inputs?
      */
     private void setEditButtonsVisibility(boolean canEdit) {
-        if (canEdit) {
-            startTaskEditingButton.setVisible(false);
-            confirmTaskEditingButton.setVisible(true);
-            cancelTaskEditingButton.setVisible(true);
+        startTaskEditingButton.setVisible(!canEdit);
+        var editControls = new Node[]{confirmTaskEditingButton, cancelTaskEditingButton, dependenciesListButtons};
+        for (var control : editControls) {
+            control.setVisible(canEdit);
         }
-        else {
-            startTaskEditingButton.setVisible(true);
-            confirmTaskEditingButton.setVisible(false);
-            cancelTaskEditingButton.setVisible(false);
+    }
+
+    /**
+     * add dependencies of the given task to {@link #currentTaskDependencies} collection
+     *
+     * @param task task that we gather dependencies for
+     */
+    private void loadTaskDependencies(Task task) {
+        currentTaskDependencies.clear();
+        currentTaskDependencies.addAll(taskDependencyRepository.getDependeciesOfTask(task));
+    }
+
+    /**
+     * update dependencies of the currently selected task
+     */
+    private void updateDependencies() {
+        // no dependencies to add
+        if (dependenciesToAdd.size() == 0)
+            return;
+
+        var allDependencies = taskDependencyRepository.getAll();
+        allDependencies.addAll(dependenciesToAdd);
+
+        try {
+            var taskDependencyGraph = new TaskDependencyGraph(allDependencies);
+            taskDependencyGraph.getOrdering();
+
+            // no cyclic dependency -> confirm
+            for (var dependency : dependenciesToAdd) {
+                taskDependencyRepository.add(dependency);
+            }
+        }
+        catch (CyclicDependencyException exception) {
+            // rollback
+            currentTaskDependencies.removeAll(dependenciesToAdd);
+
+            UiUtils.showErrorDialog("Error", "Cannot add these dependencies. Cyclic dependency detected.");
         }
     }
 }

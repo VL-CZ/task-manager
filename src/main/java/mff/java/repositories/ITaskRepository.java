@@ -10,4 +10,11 @@ public interface ITaskRepository extends IRepository<Task> {
      * @param item item to update
      */
     void update(Task item);
+
+    /**
+     * get task by its ID
+     * @param id given ID
+     * @return task with the given ID
+     */
+    Task getById(int id);
 }

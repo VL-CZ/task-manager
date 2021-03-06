@@ -4,16 +4,13 @@ import mff.java.db.DbManager;
 import mff.java.models.Task;
 import mff.java.models.TaskDependency;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TaskDependencyRepository extends BaseRepository<TaskDependency> implements ITaskDependencyRepository {
 
-    protected TaskDependencyRepository(DbManager dbManager) {
+    public TaskDependencyRepository(DbManager dbManager) {
         super(dbManager);
     }
 
@@ -22,21 +19,16 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
      */
     @Override
     public List<TaskDependency> getAll() {
-        var taskDependencies = new ArrayList<TaskDependency>();
         try (var dbConnection = dbManager.getConnection()) {
             Statement statement = dbConnection.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
             ResultSet rs = statement.executeQuery("select * from taskDependencies");
-            while (rs.next()) {
-                var taskDependency = TaskDependency.fromResultSet(rs);
-                taskDependencies.add(taskDependency);
-            }
-            return taskDependencies;
+            return getDataFromResultSet(rs);
         }
         catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -62,11 +54,41 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
         try (var dbConnection = dbManager.getConnection()) {
             PreparedStatement statement = dbConnection.prepareStatement("insert into taskDependencies(taskId, dependsOn) values (?,?)");
             statement.setInt(1, item.getTaskId());
-            statement.setInt(1, item.getDependsOnTaskId());
+            statement.setInt(2, item.getDependsOnTaskId());
             statement.execute();
         }
         catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    @Override
+    public List<TaskDependency> getDependeciesOfTask(Task task) {
+        try (var dbConnection = dbManager.getConnection()) {
+            PreparedStatement statement = dbConnection.prepareStatement("select * from taskDependencies where taskId=?");
+            statement.setInt(1, task.getId());
+            ResultSet rs = statement.executeQuery();
+            return getDataFromResultSet(rs);
+        }
+        catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * collect all TaskDependencies from the result set and return it
+     *
+     * @param rs given result set
+     * @return list of all dependencies from the result set
+     * @throws SQLException
+     */
+    private List<TaskDependency> getDataFromResultSet(ResultSet rs) throws SQLException {
+        var taskDependencies = new ArrayList<TaskDependency>();
+        while (rs.next()) {
+            var taskDependency = TaskDependency.fromResultSet(rs);
+            taskDependencies.add(taskDependency);
+        }
+        return taskDependencies;
     }
 }

@@ -33,4 +33,9 @@ public class TaskDependency {
 
         return new TaskDependency(id, taskId, dependsOnTaskId);
     }
+
+    @Override
+    public String toString() {
+        return "#" + dependsOnTaskId;
+    }
 }

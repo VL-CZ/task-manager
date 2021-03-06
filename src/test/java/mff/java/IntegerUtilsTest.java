@@ -13,8 +13,8 @@ public class IntegerUtilsTest {
      */
     @Test
     public void tryGetInt_validInteger() {
-        int number = IntegerUtils.tryGetInt("5", 0);
-        Assertions.assertEquals(5, number);
+        int number = IntegerUtils.tryGetInt("51", 0);
+        Assertions.assertEquals(51, number);
     }
 
     /**
