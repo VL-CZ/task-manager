@@ -13,7 +13,7 @@
 
         <HBox alignment="CENTER" styleClass="box" spacing="5">
             <Button onAction="#reloadTasks">Sort by ID</Button>
-            <Button onAction="#reloadTasks">Sort by dependencies</Button>
+            <Button onAction="#orderByDependencies">Sort by dependencies</Button>
             <Button onAction="#removeTask">Delete</Button>
         </HBox>
         <VBox styleClass="box, bordered-box">
