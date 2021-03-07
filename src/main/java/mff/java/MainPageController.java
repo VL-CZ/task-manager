@@ -305,8 +305,7 @@ public class MainPageController implements Initializable {
         }
 
         var result = UiUtils.showDeleteConfirmation("Delete a task dependency",
-                "Do you really want to delete the dependency: #" +
-                        dependencyToRemove.getTaskId() + " depends on #" + dependencyToRemove.getDependsOnTaskId() + " ?"
+                "Do you really want to delete the dependency: " + dependencyToRemove + " ?"
         );
 
         // OK clicked
@@ -456,4 +455,6 @@ public class MainPageController implements Initializable {
             UiUtils.showErrorDialog("Error", "Cannot add these dependencies. Cyclic dependency detected.");
         }
     }
+
+
 }
