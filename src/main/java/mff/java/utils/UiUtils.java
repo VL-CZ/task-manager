@@ -1,11 +1,9 @@
 package mff.java.utils;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * class with additional UI methods
@@ -76,5 +74,26 @@ public class UiUtils {
      */
     public static Optional<ButtonType> showErrorDialog(String title, String headerText) {
         return showDialog(Alert.AlertType.ERROR, title, headerText, "Click OK to close this dialog");
+    }
+
+    /**
+     * set text representation of items in the given listview
+     * @param listView given ListView
+     * @param getTextRepresentation function for converting the item into text
+     * @param <T> type of ListView items
+     */
+    public static <T> void setItemTextRepresentation(ListView<T> listView, Function<T, String> getTextRepresentation) {
+        listView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            public void updateItem(T item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                }
+                else {
+                    setText(getTextRepresentation.apply(item));
+                }
+            }
+        });
     }
 }

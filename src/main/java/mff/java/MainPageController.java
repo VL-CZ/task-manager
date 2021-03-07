@@ -305,8 +305,7 @@ public class MainPageController implements Initializable {
         }
 
         var result = UiUtils.showDeleteConfirmation("Delete a task dependency",
-                "Do you really want to delete the dependency: #" +
-                        dependencyToRemove.getTaskId() + " depends on #" + dependencyToRemove.getDependsOnTaskId() + " ?"
+                "Do you really want to delete the dependency: " + dependencyToRemove + " ?"
         );
 
         // OK clicked
@@ -353,6 +352,8 @@ public class MainPageController implements Initializable {
 
         UiUtils.setPositiveIntegerContent(newTaskEstimation);
         UiUtils.setPositiveIntegerContent(taskDetailEstimation);
+        UiUtils.setItemTextRepresentation(taskDetailDependencies,
+                taskDependency -> getDependsOnTask(taskDependency).toString());
     }
 
     /**
@@ -455,5 +456,14 @@ public class MainPageController implements Initializable {
 
             UiUtils.showErrorDialog("Error", "Cannot add these dependencies. Cyclic dependency detected.");
         }
+    }
+
+    /**
+     * get {@code dependsOn} task from the dependency
+     * @param dependency given dependency
+     * @return task that dependency depends on
+     */
+    private Task getDependsOnTask(TaskDependency dependency) {
+        return tasks.stream().filter(x -> x.getId() == dependency.getDependsOnTaskId()).findFirst().orElse(null);
     }
 }
