@@ -1,10 +1,12 @@
 package mff.java;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import mff.java.utils.UiUtils;
 
 import java.io.IOException;
 
@@ -17,6 +19,8 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        Thread.setDefaultUncaughtExceptionHandler(App::handleException);
+
         scene = new Scene(loadFXML("mainPage"), 1200, 600);
         stage.setScene(scene);
         stage.show();
@@ -35,4 +39,13 @@ public class App extends Application {
         launch();
     }
 
+    /**
+     * default exception handler - show error dialog and close the app
+     * @param t
+     * @param e
+     */
+    private static void handleException(Thread t, Throwable e) {
+        var dialogResult = UiUtils.showErrorDialog("An error occurred", "Please restart the app");
+        Platform.exit();
+    }
 }

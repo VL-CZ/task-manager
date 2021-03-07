@@ -26,7 +26,7 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
             return getDataFromResultSet(rs);
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
         return new ArrayList<>();
     }
@@ -42,7 +42,7 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
             statement.execute();
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
     }
 
@@ -58,7 +58,7 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
             statement.execute();
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
     }
 
@@ -71,7 +71,7 @@ public class TaskDependencyRepository extends BaseRepository<TaskDependency> imp
             return getDataFromResultSet(rs);
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
         return new ArrayList<>();
     }

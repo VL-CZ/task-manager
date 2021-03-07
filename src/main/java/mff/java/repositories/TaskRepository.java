@@ -30,7 +30,7 @@ public class TaskRepository extends BaseRepository<Task> implements ITaskReposit
             return tasks;
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
         return new ArrayList<>();
     }
@@ -46,7 +46,7 @@ public class TaskRepository extends BaseRepository<Task> implements ITaskReposit
             statement.execute();
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
     }
 
@@ -66,7 +66,7 @@ public class TaskRepository extends BaseRepository<Task> implements ITaskReposit
             statement.execute();
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
     }
 
@@ -86,7 +86,7 @@ public class TaskRepository extends BaseRepository<Task> implements ITaskReposit
             return task;
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
         return null;
     }
@@ -105,7 +105,7 @@ public class TaskRepository extends BaseRepository<Task> implements ITaskReposit
             statement.execute();
         }
         catch (SQLException throwables) {
-            throwables.printStackTrace();
+            handleSQLException(throwables);
         }
     }
 }
