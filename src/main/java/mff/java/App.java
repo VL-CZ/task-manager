@@ -16,13 +16,17 @@ import java.io.IOException;
 public class App extends Application {
 
     private static Scene scene;
+    private static final int minWidth = 1280;
+    private static final int minHeight = 720;
 
     @Override
     public void start(Stage stage) throws IOException {
         Thread.setDefaultUncaughtExceptionHandler(App::handleException);
 
-        scene = new Scene(loadFXML("mainPage"), 1200, 600);
+        scene = new Scene(loadFXML("mainPage"), minWidth, minHeight);
         stage.setScene(scene);
+        stage.setMinHeight(minHeight);
+        stage.setMinWidth(minWidth);
         stage.show();
     }
 
@@ -41,6 +45,7 @@ public class App extends Application {
 
     /**
      * default exception handler - show error dialog and close the app
+     *
      * @param t
      * @param e
      */
