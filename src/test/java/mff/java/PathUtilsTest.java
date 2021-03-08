@@ -10,11 +10,11 @@ import java.nio.file.Path;
 public class PathUtilsTest {
 
     /**
-     * check that path to resources exists
+     * check that path to resources/mff/java exists
      */
     @Test
-    public void getResourcesFolderPath_exists() {
-        Path pathToResources = PathUtils.getResourcesFolderPath();
+    public void getPackageResourcesFolderPath_exists() {
+        Path pathToResources = PathUtils.getPackageResourcesFolderPath();
         Assertions.assertTrue(Files.exists(pathToResources));
     }
 }

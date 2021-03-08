@@ -87,6 +87,6 @@ public class DbManager {
      * @return path to SQL create tables script
      */
     private Path getSqlScriptPath() {
-        return Paths.get(PathUtils.getResourcesFolderPath().toString(), "mff", "java", createSqlScriptFileName);
+        return Paths.get(PathUtils.getPackageResourcesFolderPath().toString(), createSqlScriptFileName);
     }
 }

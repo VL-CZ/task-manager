@@ -1,6 +1,7 @@
 # Task Manager
 ## Introduction
-This repository contains a desktop app for task management, more specifically it allows you to:
+This repository contains a desktop app for task management, which can be used for any type of tasks/activies that you're doing/plan to do.
+More specifically, the program allows you to
 - list all the tasks
 - add new tasks
 - delete tasks
