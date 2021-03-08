@@ -30,6 +30,13 @@ The app is multi-platform, you just need to run
 ```
 in the root directory.
 
+There are example data in [example_data.sql](example_data.sql) file. You can insert these data into the database (file database.db) 
+using [SQLite Command line shell](https://sqlite.org/cli.html) or [GUI](https://sqlitebrowser.org/) - just copy-paste the SQL script.
+Then click on "Sort by Id", which reloads data from the database or restart the app.\
+**Make sure that you haven't created any tasks before that** (example data contain hard-coded task IDs). If you had, **delete the database (file database.db), restart the 
+app and run the SQL again.**\
+If the database file doesn't exist, run the app, it will create it automatically.
+
 ## UI & Functionality
 
 ![UI](images/ui.png)
